@@ -17,6 +17,7 @@ function fakeNative(overrides: Partial<StraitNativePlugin> = {}) {
     pendingOpenReports: vi.fn(async () => ({ count: 2 })),
     flushOpenReports: vi.fn(async () => {}),
     deviceClass: vi.fn(async () => ({ deviceClass: 'phone' as const })),
+    doctor: vi.fn(async () => ({ ok: true, findings: [{ id: 'key.ok', severity: 'ok' as const, title: 'Publishable key is set', fix: '' }] })),
     addListener: vi.fn(async (name: string, cb: (d: never) => void) => {
       handlers[name]!.push(cb as (d: unknown) => void);
       return { remove: async () => { removed.push(name); } };
@@ -92,7 +93,7 @@ describe('createStrait (Capacitor)', () => {
   it('never throws: native failures (web, plugin missing) give safe defaults (B10)', async () => {
     const boom = vi.fn(async () => { throw new Error('"Strait" plugin is not implemented on web'); });
     const { native } = fakeNative({
-      start: boom, checkDeferred: boom, trackEvent: boom, pendingOpenReports: boom, flushOpenReports: boom, deviceClass: boom,
+      start: boom, checkDeferred: boom, trackEvent: boom, pendingOpenReports: boom, flushOpenReports: boom, deviceClass: boom, doctor: boom,
     });
     const s = createStrait(config, native);
     await expect(s.start()).resolves.toBeUndefined();
@@ -100,6 +101,7 @@ describe('createStrait (Capacitor)', () => {
     await expect(s.pendingOpenReports()).resolves.toBe(0);
     await expect(s.flushOpenReports()).resolves.toBeUndefined();
     await expect(s.deviceClass()).resolves.toBeUndefined();
+    await expect(s.doctor()).resolves.toEqual({ ok: false, findings: [] });
     const e = await s.checkDeferred();
     expect(e).toMatchObject({ kind: 'deferred', matched: false, reason: 'unavailable' });
   });
@@ -126,5 +128,14 @@ describe('createStrait (Capacitor)', () => {
     s.stop();
     await new Promise((r) => setTimeout(r, 0));
     expect(removed.sort()).toEqual(['link', 'linkStart']);
+  });
+
+  it('doctor() returns the native SDK report (B23) after start', async () => {
+    const { native } = fakeNative();
+    const s = createStrait(config, native);
+    await s.start();
+    const r = await s.doctor();
+    expect(native.doctor).toHaveBeenCalledTimes(1);
+    expect(r).toEqual({ ok: true, findings: [{ id: 'key.ok', severity: 'ok', title: 'Publishable key is set', fix: '' }] });
   });
 });

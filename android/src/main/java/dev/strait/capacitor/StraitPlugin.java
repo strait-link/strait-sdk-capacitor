@@ -4,6 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.os.Build;
+import android.util.Log;
 import android.util.DisplayMetrics;
 
 import com.android.installreferrer.api.InstallReferrerClient;
@@ -15,6 +20,7 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -28,6 +34,8 @@ import java.util.concurrent.TimeUnit;
 import dev.strait.sdk.AppLifecycleState;
 import dev.strait.sdk.CoreKt;
 import dev.strait.sdk.DeviceFields;
+import dev.strait.sdk.DoctorFinding;
+import dev.strait.sdk.DoctorReport;
 import dev.strait.sdk.KeyValueStore;
 import dev.strait.sdk.LinkEvent;
 import dev.strait.sdk.LinkStart;
@@ -147,6 +155,58 @@ public class StraitPlugin extends Plugin {
         String dc = deviceClass(getContext());
         if (dc != null) r.put("deviceClass", dc);
         call.resolve(r);
+    }
+
+    /** B23: setup check (debug builds). Sends this app's package and signing certificate(s). */
+    @PluginMethod
+    public void doctor(PluginCall call) {
+        StraitClient c = ready(call);
+        if (c == null) return;
+        Context ctx = getContext();
+        String pkg = ctx.getPackageName();
+        List<String> certs = signingCerts(ctx);
+        executor.execute(() -> {
+            DoctorReport r = c.doctor(pkg, certs);
+            JSArray list = new JSArray();
+            for (DoctorFinding f : r.getFindings()) {
+                JSObject o = new JSObject();
+                o.put("id", f.getId());
+                o.put("severity", f.getSeverity());
+                o.put("title", f.getTitle());
+                o.put("fix", f.getFix());
+                list.put(o);
+                Log.i("StraitDoctor", f.getSeverity() + " " + f.getId() + ": " + f.getTitle() + (f.getFix().isEmpty() ? "" : " → " + f.getFix()));
+            }
+            JSObject out = new JSObject();
+            out.put("ok", r.getOk());
+            out.put("findings", list);
+            call.resolve(out);
+        });
+    }
+
+    /** SHA-256 of this build's signing certificate(s), "AB:CD:…" (what assetlinks.json lists). */
+    @SuppressWarnings("deprecation")
+    private static List<String> signingCerts(Context ctx) {
+        List<String> out = new ArrayList<>();
+        try {
+            PackageManager pm = ctx.getPackageManager();
+            Signature[] sigs;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                PackageInfo pi = pm.getPackageInfo(ctx.getPackageName(), PackageManager.GET_SIGNING_CERTIFICATES);
+                sigs = pi.signingInfo == null ? new Signature[0]
+                    : pi.signingInfo.hasMultipleSigners() ? pi.signingInfo.getApkContentsSigners() : pi.signingInfo.getSigningCertificateHistory();
+            } else {
+                sigs = pm.getPackageInfo(ctx.getPackageName(), PackageManager.GET_SIGNATURES).signatures;
+            }
+            for (Signature sig : sigs) {
+                byte[] d = MessageDigest.getInstance("SHA-256").digest(sig.toByteArray());
+                StringBuilder b = new StringBuilder();
+                for (int i = 0; i < d.length; i++) b.append(i == 0 ? "" : ":").append(String.format("%02X", d[i]));
+                out.add(b.toString());
+            }
+        } catch (Exception ignored) {
+        }
+        return out;
     }
 
     @Override

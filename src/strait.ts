@@ -38,6 +38,21 @@ export interface LinkStart {
 
 export type DeviceClass = 'phone' | 'tablet';
 
+/** One setup check (contract B23, the same ids and wording in every Strait SDK). */
+export interface DoctorFinding {
+  id: string;
+  severity: 'ok' | 'warn' | 'error';
+  title: string;
+  /** What to do; empty for `ok`. */
+  fix: string;
+}
+
+export interface DoctorReport {
+  /** No `error` finding. */
+  ok: boolean;
+  findings: DoctorFinding[];
+}
+
 export interface CreateStraitConfig {
   /** Your workspace's publishable key (`st_pub_live_…`), Dashboard → Get started. Never the secret key. */
   publishableKey: string;
@@ -62,6 +77,7 @@ export interface StraitNativePlugin {
   pendingOpenReports(): Promise<{ count: number }>;
   flushOpenReports(): Promise<void>;
   deviceClass(): Promise<{ deviceClass?: DeviceClass }>;
+  doctor(): Promise<DoctorReport>;
   addListener(event: 'link', cb: (e: LinkEvent) => void): Promise<PluginListenerHandle>;
   addListener(event: 'linkStart', cb: (s: LinkStart) => void): Promise<PluginListenerHandle>;
 }
@@ -83,6 +99,12 @@ export interface Strait {
   flushOpenReports(): Promise<void>;
   /** What the app runs on, as sent with open reports (B14): iPad / sw600dp = tablet. */
   deviceClass(): Promise<DeviceClass | undefined>;
+  /**
+   * Setup check for debug builds (B23): key, endpoint, and whether your link domain's
+   * assetlinks.json / apple-app-site-association lists this app (Android: also this build's
+   * signing certificate). Call after start(). Never throws.
+   */
+  doctor(): Promise<DoctorReport>;
   /** Stop delivering events to this object. */
   stop(): void;
 }
@@ -149,6 +171,7 @@ export function createStrait(config: CreateStraitConfig, native: StraitNativePlu
     pendingOpenReports: () => safe(async () => (await native.pendingOpenReports()).count ?? 0, 0),
     flushOpenReports: () => safe(() => native.flushOpenReports(), undefined),
     deviceClass: () => safe(async () => (await native.deviceClass()).deviceClass, undefined),
+    doctor: () => safe(() => native.doctor(), { ok: false, findings: [] } as DoctorReport),
     stop() {
       linkCbs.clear();
       startCbs.clear();
