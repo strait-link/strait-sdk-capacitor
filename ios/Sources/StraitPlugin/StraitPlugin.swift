@@ -18,6 +18,7 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "flushOpenReports", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "deviceClass", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "doctor", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openStoreSheet", returnType: CAPPluginReturnPromise),
     ]
 
     private var links: StraitLinks?
@@ -108,6 +109,36 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
                 "ok": r.ok,
                 "findings": r.findings.map { ["id": $0.id, "severity": $0.severity, "title": $0.title, "fix": $0.fix] },
             ])
+        }
+    }
+
+    /// Store sheet: the App Store inside the app for one of the workspace's links, deep link kept.
+    @objc func openStoreSheet(_ call: CAPPluginCall) {
+        guard let l = ready(call) else { return }
+        guard let url = call.getString("url"), !url.isEmpty else {
+            call.reject("Strait: openStoreSheet needs a url")
+            return
+        }
+        DispatchQueue.main.async { [weak self] in
+            guard let vc = self?.bridge?.viewController else {
+                call.resolve(["opened": false, "method": "none", "reason": "no_view"])
+                return
+            }
+            let options = StoreSheetOptions(
+                appStoreId: call.getString("appStoreId"),
+                providerToken: call.getString("providerToken"),
+                customProductPageId: call.getString("customProductPageId"),
+                style: StoreSheetStyle(rawValue: call.getString("style") ?? "") ?? .productPage
+            )
+            let presenter = SystemStoreSheetPresenter(from: vc)
+            l.openStoreSheet(url: url, options: options, presenter: presenter) { r in
+                _ = presenter // keep the presenter (the store sheet's delegate) alive until done
+                var o: [String: Any] = ["opened": r.opened, "method": r.method]
+                if let v = r.clickId { o["clickId"] = v }
+                if let v = r.linkId { o["linkId"] = v }
+                if let v = r.reason { o["reason"] = v }
+                call.resolve(o)
+            }
         }
     }
 

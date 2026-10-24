@@ -1,7 +1,9 @@
 package dev.strait.capacitor;
 
 import android.content.Context;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -39,6 +41,9 @@ import dev.strait.sdk.DoctorReport;
 import dev.strait.sdk.KeyValueStore;
 import dev.strait.sdk.LinkEvent;
 import dev.strait.sdk.LinkStart;
+import dev.strait.sdk.StoreLauncher;
+import dev.strait.sdk.StoreSheetOptions;
+import dev.strait.sdk.StoreSheetResult;
 import dev.strait.sdk.StraitClient;
 import dev.strait.sdk.StraitConfig;
 import dev.strait.sdk.UrlConnectionTransport;
@@ -181,6 +186,47 @@ public class StraitPlugin extends Plugin {
             out.put("ok", r.getOk());
             out.put("findings", list);
             call.resolve(out);
+        });
+    }
+
+    /** Store sheet: Google Play inside the app for one of the workspace's links, deep link kept. */
+    @PluginMethod
+    public void openStoreSheet(PluginCall call) {
+        StraitClient c = ready(call);
+        if (c == null) return;
+        String url = call.getString("url", "");
+        if (url == null || url.isEmpty()) {
+            call.reject("Strait: openStoreSheet needs a url");
+            return;
+        }
+        Context ctx = getContext();
+        StoreSheetOptions opts = new StoreSheetOptions(
+            call.getString("androidPackage"), ctx.getPackageName(), call.getString("listing"), call.getBoolean("inline", true));
+        StoreLauncher launcher = s -> {
+            Intent intent = new Intent(s.getAction(), Uri.parse(s.getData()));
+            if (s.getPackageName() != null) intent.setPackage(s.getPackageName());
+            for (Map.Entry<String, Object> kv : s.getExtras().entrySet()) {
+                if (kv.getValue() instanceof Boolean) intent.putExtra(kv.getKey(), (Boolean) kv.getValue());
+                else if (kv.getValue() instanceof String) intent.putExtra(kv.getKey(), (String) kv.getValue());
+            }
+            if (getActivity() == null) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                (getActivity() != null ? getActivity() : ctx).startActivity(intent);
+                return true;
+            } catch (ActivityNotFoundException e) {
+                return false;
+            }
+        };
+        executor.execute(() -> {
+            StoreSheetResult r = c.openStoreSheet(url, launcher, opts);
+            JSObject o = new JSObject();
+            o.put("opened", r.getOpened());
+            o.put("method", r.getMethod());
+            putIf(o, "clickId", r.getClickId());
+            putIf(o, "linkId", r.getLinkId());
+            putIf(o, "referrer", r.getReferrer());
+            putIf(o, "reason", r.getReason());
+            call.resolve(o);
         });
     }
 

@@ -131,6 +131,7 @@ Debug, release and Play App Signing keys each have their own fingerprint."
 | `trackEvent(name, { value, currency, linkId, clickId })` | Conversion or revenue event, placed on the tap of the last attributed open (7 days). Resolves `true` when accepted. |
 | `pendingOpenReports()` / `flushOpenReports()` | Open reports saved while offline (sent again on start and resume). |
 | `deviceClass()` | `phone` or `tablet` (iPad / 600 dp and up), as sent with open reports. |
+| `openStoreSheet(url, options?)` | The app store inside your app for one of your links (another app to install), deep link kept through the install. Options: `androidPackage`, `listing`, `inline`, `appStoreId`, `providerToken`, `customProductPageId`, `style`. Resolves `{ opened, method, clickId, linkId, referrer, reason }`. |
 | `doctor()` | Setup check for debug builds (key, endpoint, this app listed in your link domain's files, Android signing certificate). Resolves `{ ok, findings }`. |
 | `stop()` | Stops delivering events to this object. |
 

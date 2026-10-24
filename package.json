@@ -1,6 +1,6 @@
 {
   "name": "@straitlink/capacitor",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Deep linking for Capacitor and Ionic apps: direct links (App Links, Universal Links, custom schemes), deferred links that survive the install and link-open analytics. Wraps the Strait Android and iOS SDKs.",
   "keywords": [
     "capacitor",
