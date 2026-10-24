@@ -17,6 +17,7 @@ function fakeNative(overrides: Partial<StraitNativePlugin> = {}) {
     pendingOpenReports: vi.fn(async () => ({ count: 2 })),
     flushOpenReports: vi.fn(async () => {}),
     deviceClass: vi.fn(async () => ({ deviceClass: 'phone' as const })),
+    openStoreSheet: vi.fn(async () => ({ opened: true, method: 'market', clickId: 'c1', linkId: 'l1' })),
     doctor: vi.fn(async () => ({ ok: true, findings: [{ id: 'key.ok', severity: 'ok' as const, title: 'Publishable key is set', fix: '' }] })),
     addListener: vi.fn(async (name: string, cb: (d: never) => void) => {
       handlers[name]!.push(cb as (d: unknown) => void);
@@ -93,7 +94,7 @@ describe('createStrait (Capacitor)', () => {
   it('never throws: native failures (web, plugin missing) give safe defaults (B10)', async () => {
     const boom = vi.fn(async () => { throw new Error('"Strait" plugin is not implemented on web'); });
     const { native } = fakeNative({
-      start: boom, checkDeferred: boom, trackEvent: boom, pendingOpenReports: boom, flushOpenReports: boom, deviceClass: boom, doctor: boom,
+      start: boom, checkDeferred: boom, trackEvent: boom, pendingOpenReports: boom, flushOpenReports: boom, deviceClass: boom, doctor: boom, openStoreSheet: boom,
     });
     const s = createStrait(config, native);
     await expect(s.start()).resolves.toBeUndefined();
@@ -102,6 +103,7 @@ describe('createStrait (Capacitor)', () => {
     await expect(s.flushOpenReports()).resolves.toBeUndefined();
     await expect(s.deviceClass()).resolves.toBeUndefined();
     await expect(s.doctor()).resolves.toEqual({ ok: false, findings: [] });
+    await expect(s.openStoreSheet('https://hilltop.strait.link/promo')).resolves.toEqual({ opened: false, method: 'none', reason: 'unavailable' });
     const e = await s.checkDeferred();
     expect(e).toMatchObject({ kind: 'deferred', matched: false, reason: 'unavailable' });
   });
@@ -137,5 +139,13 @@ describe('createStrait (Capacitor)', () => {
     const r = await s.doctor();
     expect(native.doctor).toHaveBeenCalledTimes(1);
     expect(r).toEqual({ ok: true, findings: [{ id: 'key.ok', severity: 'ok', title: 'Publishable key is set', fix: '' }] });
+  });
+
+  it('openStoreSheet passes the link and options to the native store sheet and returns its result', async () => {
+    const { native } = fakeNative();
+    const s = createStrait(config, native);
+    const r = await s.openStoreSheet('https://hilltop.strait.link/promo', { appStoreId: '123456789', style: 'overlay', inline: false });
+    expect(native.openStoreSheet).toHaveBeenCalledWith({ url: 'https://hilltop.strait.link/promo', appStoreId: '123456789', style: 'overlay', inline: false });
+    expect(r).toEqual({ opened: true, method: 'market', clickId: 'c1', linkId: 'l1' });
   });
 });
