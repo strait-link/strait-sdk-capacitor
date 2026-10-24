@@ -20,6 +20,8 @@ export type {
   LinkEvent,
   LinkStart,
   Strait,
+  StoreSheetOptions,
+  StoreSheetResult,
   StraitNativePlugin,
   TrackEventExtra,
 } from './strait.js';

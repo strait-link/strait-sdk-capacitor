@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 (24 Oct 2026)
+- `openStoreSheet(url, options)`: the app store inside your app for one of your links (another app
+  you want people to install), keeping the deep link through the install. Android opens Google Play's
+  inline sheet, then the Play app, then the web listing; iPhone shows the App Store product page or an
+  overlay card. Same options and result as `@straitlink/react-native`.
+- Sample app: an "Open store sheet" button.
+
 ## 0.2.0 (24 Oct 2026)
 - `doctor()` (contract B23): a setup check for debug builds. Checks the key, the endpoint, and whether
   your link domain's `assetlinks.json` / `apple-app-site-association` lists this app. On Android it
