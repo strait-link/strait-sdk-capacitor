@@ -1,0 +1,56 @@
+// @straitlink/capacitor, Android side: a thin Capacitor plugin over strait-sdk-android (JitPack).
+ext {
+    straitSdkVersion = 'v0.8.1'
+}
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.13.0'
+    }
+}
+
+apply plugin: 'com.android.library'
+
+// strait-sdk-android is built by JitPack from its version tags. Gradle resolves this plugin's
+// dependencies with the app's repositories, so add JitPack to every project, limited to the
+// Strait group (nothing else is ever fetched from JitPack).
+rootProject.allprojects {
+    repositories {
+        maven {
+            url 'https://jitpack.io'
+            content { includeGroup 'com.github.strait-link' }
+        }
+    }
+}
+
+android {
+    namespace = 'dev.strait.capacitor'
+    compileSdk = project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 36
+    defaultConfig {
+        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
+        targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 36
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+    lint {
+        abortOnError = false
+    }
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':capacitor-android')
+    implementation "androidx.appcompat:appcompat:${project.hasProperty('androidxAppCompatVersion') ? rootProject.ext.androidxAppCompatVersion : '1.7.1'}"
+    implementation "com.github.strait-link:strait-sdk-android:${straitSdkVersion}"
+    implementation 'com.android.installreferrer:installreferrer:2.2'
+}

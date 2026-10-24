@@ -1,0 +1,71 @@
+{
+  "name": "@straitlink/capacitor",
+  "version": "0.1.0",
+  "description": "Deep linking for Capacitor and Ionic apps: direct links (App Links, Universal Links, custom schemes), deferred links that survive the install and link-open analytics. Wraps the Strait Android and iOS SDKs.",
+  "keywords": [
+    "capacitor",
+    "capacitor-plugin",
+    "ionic",
+    "deep-linking",
+    "deferred-deep-linking",
+    "universal-links",
+    "app-links",
+    "dynamic-links"
+  ],
+  "license": "MIT",
+  "author": "The Strait authors",
+  "homepage": "https://straitlink.in/docs/sdks/capacitor/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/strait-link/strait-sdk-capacitor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/strait-link/strait-sdk-capacitor/issues"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "android/src/main/",
+    "android/build.gradle",
+    "ios/Sources",
+    "Package.swift"
+  ],
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  },
+  "sideEffects": false,
+  "peerDependencies": {
+    "@capacitor/core": ">=8.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@capacitor/core": "8.5.3",
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.12"
+  }
+}

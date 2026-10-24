@@ -14,3 +14,8 @@ examples/*/ios/App/build/
 examples/*/ios/DerivedData/
 *.xcuserstate
 xcuserdata/
+# plugin build output (the sample builds it)
+android/build/
+android/.gradle/
+.build/
+.swiftpm/
