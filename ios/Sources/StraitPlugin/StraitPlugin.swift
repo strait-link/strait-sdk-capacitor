@@ -17,6 +17,7 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "pendingOpenReports", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "flushOpenReports", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "deviceClass", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "doctor", returnType: CAPPluginReturnPromise),
     ]
 
     private var links: StraitLinks?
@@ -95,6 +96,18 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
             var r: [String: Any] = [:]
             if let dc = currentDeviceClass() { r["deviceClass"] = dc }
             call.resolve(r)
+        }
+    }
+
+    /// B23: setup check (debug builds) for this app's bundle ID.
+    @objc func doctor(_ call: CAPPluginCall) {
+        guard let l = ready(call) else { return }
+        l.doctor(bundleId: Bundle.main.bundleIdentifier) { r in
+            for f in r.findings { print("[Strait doctor] \(f.severity) \(f.id): \(f.title)\(f.fix.isEmpty ? "" : " → \(f.fix)")") }
+            call.resolve([
+                "ok": r.ok,
+                "findings": r.findings.map { ["id": $0.id, "severity": $0.severity, "title": $0.title, "fix": $0.fix] },
+            ])
         }
     }
 

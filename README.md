@@ -92,6 +92,19 @@ The app opens on the link's screen and the console prints
 `Strait link: direct app_link true /p/42` (your path). The open shows up in the dashboard's
 Analytics within a minute. On a fresh install the first launch prints a `deferred` event instead.
 
+### Check your setup
+
+In a debug build, after `start()`:
+
+```ts
+const report = await strait.doctor();
+for (const f of report.findings) console.log(f.severity, f.id, f.title, f.fix);
+```
+
+**You should see** `ok key.ok`, `ok app.listed` and, on Android, `ok cert.listed`. Anything marked
+`error` comes with the fix, for example `cert.missing`: "Add AB:CD:… in Dashboard → Apps & stores.
+Debug, release and Play App Signing keys each have their own fingerprint."
+
 ## Platform features
 
 | Feature | Status | Notes |
@@ -118,6 +131,7 @@ Analytics within a minute. On a fresh install the first launch prints a `deferre
 | `trackEvent(name, { value, currency, linkId, clickId })` | Conversion or revenue event, placed on the tap of the last attributed open (7 days). Resolves `true` when accepted. |
 | `pendingOpenReports()` / `flushOpenReports()` | Open reports saved while offline (sent again on start and resume). |
 | `deviceClass()` | `phone` or `tablet` (iPad / 600 dp and up), as sent with open reports. |
+| `doctor()` | Setup check for debug builds (key, endpoint, this app listed in your link domain's files, Android signing certificate). Resolves `{ ok, findings }`. |
 | `stop()` | Stops delivering events to this object. |
 
 `LinkEvent`: `id, kind (direct|deferred), route (app_link|custom_scheme|install_referrer|fingerprint|clipboard),
@@ -130,11 +144,11 @@ The plugin is a thin layer. All link logic (resolving short links, the once-per-
 check, open reports and their retry queue, app-state labels) runs in the native SDKs, which share
 golden test vectors with the Strait engine:
 
-- **Android:** `strait-sdk-android` **v0.8.1** from JitPack. The plugin adds JitPack to your Gradle
+- **Android:** `strait-sdk-android` **v0.8.3** from JitPack. The plugin adds JitPack to your Gradle
   repositories, limited to the `com.github.strait-link` group, so nothing else is ever fetched from
   it. It reads the Play Install Referrer (`com.android.installreferrer:installreferrer:2.2`), the launch
   intent and `onNewIntent`, and keeps state in SharedPreferences (`strait`).
-- **iOS:** `StraitSDK` **0.9.3+** through Swift Package Manager. Links come from Capacitor's
+- **iOS:** `StraitSDK` **0.9.4+** through Swift Package Manager. Links come from Capacitor's
   `capacitorOpenURL` / `capacitorOpenUniversalLink` notifications; state lives in `UserDefaults`.
 
 What gets recorded, the privacy details and the match methods are the same as the native SDKs:

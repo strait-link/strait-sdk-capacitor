@@ -15,6 +15,8 @@ export function createStrait(config: CreateStraitConfig, native: StraitNativePlu
 export type {
   CreateStraitConfig,
   DeviceClass,
+  DoctorFinding,
+  DoctorReport,
   LinkEvent,
   LinkStart,
   Strait,

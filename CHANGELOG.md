@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 (24 Oct 2026)
+- `doctor()` (contract B23): a setup check for debug builds. Checks the key, the endpoint, and whether
+  your link domain's `assetlinks.json` / `apple-app-site-association` lists this app. On Android it
+  also checks this build's signing certificate, the most common reason App Links open the browser.
+  Same finding ids and wording as every Strait SDK.
+- Native SDKs: strait-sdk-android v0.8.3, StraitSDK 0.9.4+.
+- Sample app: a "Check setup" button.
+
 ## 0.1.0 (24 Oct 2026)
 - First release: `@straitlink/capacitor`, a Capacitor 8 plugin over strait-sdk-android v0.8.1 (JitPack)
   and StraitSDK 0.9.3 (Swift Package Manager).

@@ -34,6 +34,16 @@ $('event').onclick = async () => {
   $('status').textContent = ok ? 'Purchase logged' : 'Purchase not logged (offline?)';
 };
 
+// Setup check: run it once at start in debug builds, and again from the button.
+async function runDoctor() {
+  const r = await strait.doctor();
+  $('doctor-card').hidden = false;
+  $('doctor-out').textContent = (r.ok ? 'All good' : 'Needs attention') + '\n' +
+    r.findings.map((f) => `${f.severity.toUpperCase()} ${f.id}: ${f.title}${f.fix ? `\n  → ${f.fix}` : ''}`).join('\n');
+}
+$('doctor').onclick = runDoctor;
+
 strait.start().then(async () => {
   if ($('status').textContent === 'Starting…') $('status').textContent = `Ready (${(await strait.deviceClass()) || 'web'})`;
+  runDoctor();
 });
