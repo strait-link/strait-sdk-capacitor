@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+*.tgz
+# sample app build output
+examples/*/www/build/
+examples/*/android/app/build/
+examples/*/android/build/
+examples/*/android/.gradle/
+examples/*/android/local.properties
+examples/*/ios/App/build/
+examples/*/ios/DerivedData/
+*.xcuserstate
+xcuserdata/
