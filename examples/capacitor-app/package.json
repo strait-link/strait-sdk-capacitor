@@ -1,0 +1,21 @@
+{
+  "name": "strait-capacitor-sample",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Strait Capacitor sample: opens a Strait link on the right screen, shows deferred links and logs an event.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "sync": "npm run build && cap sync"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/ios": "8.5.3",
+    "@straitlink/capacitor": "file:../.."
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3",
+    "esbuild": "0.28.2"
+  }
+}

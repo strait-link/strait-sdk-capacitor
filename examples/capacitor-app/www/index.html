@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Strait Capacitor sample</title>
+  <style>
+    :root { color-scheme: light dark; --bg: #fffaf5; --fg: #1c1714; --muted: #6b625a; --card: #ffffff; --accent: #c2410c; --line: #eadfd4; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #0f0d0a; --fg: #f5efe8; --muted: #a89d92; --card: #1a1612; --accent: #fb923c; --line: #2d2620; } }
+    body { margin: 0; font: 16px/1.45 system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--fg);
+           padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px); }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    .muted { color: var(--muted); font-size: 14px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 14px 0; }
+    #screen h2 { margin: 0 0 6px; font-size: 20px; color: var(--accent); }
+    button { font: inherit; min-height: 44px; padding: 0 14px; margin: 4px 6px 4px 0; border-radius: 10px;
+             border: 1px solid var(--line); background: var(--card); color: var(--fg); }
+    pre { white-space: pre-wrap; word-break: break-all; font-size: 12px; margin: 0; }
+  </style>
+</head>
+<body>
+  <h1>Strait Capacitor sample</h1>
+  <div class="muted" id="status">Starting…</div>
+  <div class="card" id="screen" data-testid="screen"><h2>Home</h2><div class="muted">Open a Strait link to land on its screen.</div></div>
+  <div>
+    <button id="deferred">Check deferred link</button>
+    <button id="event">Log a purchase</button>
+  </div>
+  <div class="card"><div class="muted">Last link event</div><pre id="last">none yet</pre></div>
+  <script type="module" src="build/app.js"></script>
+</body>
+</html>
