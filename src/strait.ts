@@ -47,6 +47,34 @@ export interface DoctorFinding {
   fix: string;
 }
 
+/** Store sheet options (same names as @straitlink/react-native). */
+export interface StoreSheetOptions {
+  /** Android: the app to install. Default: the workspace's Android package from Strait. */
+  androidPackage?: string;
+  /** Android: a Play custom store listing name. */
+  listing?: string;
+  /** Android: false skips Play's inline half-sheet. Default true. */
+  inline?: boolean;
+  /** iPhone: the app to install. Default: the workspace's App Store ID from Strait. */
+  appStoreId?: string;
+  providerToken?: string;
+  customProductPageId?: string;
+  /** iPhone: the full product page (default) or a small card at the bottom. */
+  style?: 'product_page' | 'overlay';
+}
+
+export interface StoreSheetResult {
+  opened: boolean;
+  /** inline_install | market | web | product_page | overlay | none */
+  method: string;
+  clickId?: string;
+  linkId?: string;
+  /** Android: the Play Install Referrer sent. */
+  referrer?: string;
+  /** not_found, expired, offline, no_package, no_app_store_id, not_shown, unavailable… */
+  reason?: string;
+}
+
 export interface DoctorReport {
   /** No `error` finding. */
   ok: boolean;
@@ -78,6 +106,7 @@ export interface StraitNativePlugin {
   flushOpenReports(): Promise<void>;
   deviceClass(): Promise<{ deviceClass?: DeviceClass }>;
   doctor(): Promise<DoctorReport>;
+  openStoreSheet(options: { url: string } & StoreSheetOptions): Promise<StoreSheetResult>;
   addListener(event: 'link', cb: (e: LinkEvent) => void): Promise<PluginListenerHandle>;
   addListener(event: 'linkStart', cb: (s: LinkStart) => void): Promise<PluginListenerHandle>;
 }
@@ -105,6 +134,11 @@ export interface Strait {
    * signing certificate). Call after start(). Never throws.
    */
   doctor(): Promise<DoctorReport>;
+  /**
+   * Store sheet: open the app store inside your app for one of your short links (an app you
+   * want people to install), keeping the deep link through the install. Never throws.
+   */
+  openStoreSheet(url: string, options?: StoreSheetOptions): Promise<StoreSheetResult>;
   /** Stop delivering events to this object. */
   stop(): void;
 }
@@ -172,6 +206,8 @@ export function createStrait(config: CreateStraitConfig, native: StraitNativePlu
     flushOpenReports: () => safe(() => native.flushOpenReports(), undefined),
     deviceClass: () => safe(async () => (await native.deviceClass()).deviceClass, undefined),
     doctor: () => safe(() => native.doctor(), { ok: false, findings: [] } as DoctorReport),
+    openStoreSheet: (url, options = {}) =>
+      safe(() => native.openStoreSheet({ url, ...options }), { opened: false, method: 'none', reason: 'unavailable' } as StoreSheetResult),
     stop() {
       linkCbs.clear();
       startCbs.clear();

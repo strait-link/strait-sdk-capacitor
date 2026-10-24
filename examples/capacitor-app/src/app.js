@@ -43,6 +43,12 @@ async function runDoctor() {
 }
 $('doctor').onclick = runDoctor;
 
+// Store sheet: the store inside this app for a link to another app, deep link kept through the install.
+$('store').onclick = async () => {
+  const r = await strait.openStoreSheet(`${STRAIT_ENDPOINT}/bl-product`);
+  $('status').textContent = `Store sheet: opened=${r.opened} method=${r.method}${r.reason ? ` reason=${r.reason}` : ''}`;
+};
+
 strait.start().then(async () => {
   if ($('status').textContent === 'Starting…') $('status').textContent = `Ready (${(await strait.deviceClass()) || 'web'})`;
   runDoctor();
