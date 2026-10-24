@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Strait Capacitor</string>
+    <string name="title_activity_main">Strait Capacitor</string>
+    <string name="package_name">dev.strait.capsample</string>
+    <string name="custom_url_scheme">dev.strait.capsample</string>
+</resources>
