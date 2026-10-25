@@ -168,6 +168,17 @@ adb shell am start -n <your.package>/.MainActivity \
 
 Take both values from the Play Store URL your link redirects an Android phone to (its `referrer=`).
 
+## Size and speed
+
+Measured 25 Oct 2026 on 0.3.0.
+
+| What | Size or time | How it was measured |
+|---|---|---|
+| npm package | 15.6 KB download, 50 KB unpacked (JS, plus the Android and iOS plugin sources) | `npm pack --dry-run` |
+| In your web bundle | 1.5 KB minified, 0.8 KB gzip (`@capacitor/core` is yours already) | esbuild 0.25 `--bundle --minify` |
+| Native | the Android SDK (about 35 KB of dex after R8) and the Swift SDK (about 280 KB of arm64 code before App Store compression); see their READMEs | measured in those repos |
+| Start-up (JS side) | 3.0 ms to load the module with `@capacitor/core` + 0.07 ms for `createStrait(...)` | fresh Node 26 process, median of 25. The native side's start-up is in the Android and Swift READMEs |
+
 ## Sample app
 
 [`examples/capacitor-app`](examples/capacitor-app): a plain-JS Capacitor app with two screens
