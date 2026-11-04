@@ -128,7 +128,7 @@ Debug, release and Play App Signing keys each have their own fingerprint."
 | `onLink(cb)` | Every link event, including ones from before you subscribed. Returns an unsubscribe. |
 | `onLinkStart(cb)` | A link just arrived and is being resolved: show a loading state. |
 | `checkDeferred()` | Asks for the deferred link again (settings or debug screens). Doesn't add an install. |
-| `trackEvent(name, { value, currency, linkId, clickId, eventId })` | Conversion or revenue event, placed on the tap of the last attributed open (7 days). `eventId` = your order id, stored once (left out, the SDK makes one). Resolves `true` when accepted; an event that can't be sent (offline, server busy) is kept and sent later with the open reports. |
+| `trackEvent(name, { value, currency, linkId, clickId, eventId })` | Conversion or revenue event, placed on the tap of the last attributed open (7 days). `eventId` = your order id, stored once (left out, the SDK makes one). Resolves `true` when accepted; an event that can't be sent (offline, server busy) is kept and sent later with the open reports. Revenue you must trust: send it from your server with the secret key (the publishable key is public). |
 | `pendingOpenReports()` / `flushOpenReports()` | Open reports saved while offline (sent again on start and resume). |
 | `deviceClass()` | `phone` or `tablet` (iPad / 600 dp and up), as sent with open reports. |
 | `openStoreSheet(url, options?)` | The app store inside your app for one of your links (another app to install), deep link kept through the install. Options: `androidPackage`, `listing`, `inline`, `appStoreId`, `providerToken`, `customProductPageId`, `style`. Resolves `{ opened, method, clickId, linkId, referrer, reason }`. |
