@@ -1,6 +1,6 @@
 // @straitlink/capacitor, Android side: a thin Capacitor plugin over strait-sdk-android (JitPack).
 ext {
-    straitSdkVersion = 'v0.8.3'
+    straitSdkVersion = 'v0.9.0' // B6a installTime + B13a eventId (strait-sdk-android PR #13; tag in launch week)
 }
 
 buildscript {

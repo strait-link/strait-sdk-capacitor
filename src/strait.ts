@@ -95,6 +95,8 @@ export interface TrackEventExtra {
   currency?: string;
   linkId?: string;
   clickId?: string;
+  /** Your id for this conversion, e.g. the order id (1-64 of A-Z a-z 0-9 _ . : -). Stored once (B13a). */
+  eventId?: string;
 }
 
 /** The native side (Android: StraitPlugin.java over strait-sdk-android; iOS: StraitPlugin.swift over StraitSDK). */

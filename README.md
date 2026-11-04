@@ -128,7 +128,7 @@ Debug, release and Play App Signing keys each have their own fingerprint."
 | `onLink(cb)` | Every link event, including ones from before you subscribed. Returns an unsubscribe. |
 | `onLinkStart(cb)` | A link just arrived and is being resolved: show a loading state. |
 | `checkDeferred()` | Asks for the deferred link again (settings or debug screens). Doesn't add an install. |
-| `trackEvent(name, { value, currency, linkId, clickId })` | Conversion or revenue event, placed on the tap of the last attributed open (7 days). Resolves `true` when accepted. |
+| `trackEvent(name, { value, currency, linkId, clickId, eventId })` | Conversion or revenue event, placed on the tap of the last attributed open (7 days). `eventId` = your order id, stored once (left out, the SDK makes one). Resolves `true` when accepted; an event that can't be sent (offline, server busy) is kept and sent later with the open reports. |
 | `pendingOpenReports()` / `flushOpenReports()` | Open reports saved while offline (sent again on start and resume). |
 | `deviceClass()` | `phone` or `tablet` (iPad / 600 dp and up), as sent with open reports. |
 | `openStoreSheet(url, options?)` | The app store inside your app for one of your links (another app to install), deep link kept through the install. Options: `androidPackage`, `listing`, `inline`, `appStoreId`, `providerToken`, `customProductPageId`, `style`. Resolves `{ opened, method, clickId, linkId, referrer, reason }`. |
@@ -145,12 +145,17 @@ The plugin is a thin layer. All link logic (resolving short links, the once-per-
 check, open reports and their retry queue, app-state labels) runs in the native SDKs, which share
 golden test vectors with the Strait engine:
 
-- **Android:** `strait-sdk-android` **v0.8.3** from JitPack. The plugin adds JitPack to your Gradle
+- **Android:** `strait-sdk-android` **v0.9.0** from JitPack. The plugin adds JitPack to your Gradle
   repositories, limited to the `com.github.strait-link` group, so nothing else is ever fetched from
   it. It reads the Play Install Referrer (`com.android.installreferrer:installreferrer:2.2`), the launch
   intent and `onNewIntent`, and keeps state in SharedPreferences (`strait`).
-- **iOS:** `StraitSDK` **0.9.4+** through Swift Package Manager. Links come from Capacitor's
+- **iOS:** `StraitSDK` **0.10.0+** through Swift Package Manager. Links come from Capacitor's
   `capacitorOpenURL` / `capacitorOpenUniversalLink` notifications; state lives in `UserDefaults`.
+
+**Reinstalls (contract B6a):** Android Auto Backup and restored iPhones bring the "deferred check
+done" flag back after a reinstall. The plugin passes the app's install time to the native SDKs
+(Android `firstInstallTime`; iOS a marker file kept out of backups), so a reinstall from a link still
+gets its deferred link and is counted. An app update is never a new install. No app code needed.
 
 What gets recorded, the privacy details and the match methods are the same as the native SDKs:
 see [Android](https://github.com/strait-link/strait-sdk-android#what-strait-records-automatically-no-extra-code)

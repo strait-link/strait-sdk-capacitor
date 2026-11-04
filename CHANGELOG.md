@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0 (unreleased, launch week; needs strait-sdk-android v0.9.0 and StraitSDK 0.10.0)
+- Fix: reinstalls from a link are no longer lost (Android Auto Backup / restored iPhones brought the
+  once-per-install flag back). The Android side passes `firstInstallTime` to the SDK; iOS gets the
+  SDK's backup-excluded install marker (contract B6a).
+- `trackEvent(name, { eventId })`: your order id, stored once by the engine; left out, the SDK makes
+  one. Events that can't be sent (offline, 429, 5xx) are kept and sent later (contract B13a).
+
 ## 0.3.0 (24 Oct 2026)
 - `openStoreSheet(url, options)`: the app store inside your app for one of your links (another app
   you want people to install), keeping the deep link through the install. Android opens Google Play's

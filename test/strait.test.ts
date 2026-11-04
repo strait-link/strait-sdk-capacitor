@@ -89,6 +89,8 @@ describe('createStrait (Capacitor)', () => {
     const s = createStrait(config, native);
     await expect(s.trackEvent('purchase', { value: 49.99, currency: 'USD' })).resolves.toBe(true);
     expect(native.trackEvent).toHaveBeenCalledWith({ name: 'purchase', value: 49.99, currency: 'USD' });
+    await s.trackEvent('purchase', { value: 5, currency: 'INR', eventId: 'ord_1001' });
+    expect(native.trackEvent).toHaveBeenLastCalledWith({ name: 'purchase', value: 5, currency: 'INR', eventId: 'ord_1001' });
   });
 
   it('never throws: native failures (web, plugin missing) give safe defaults (B10)', async () => {
