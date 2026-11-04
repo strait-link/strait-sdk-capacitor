@@ -39,6 +39,9 @@ You need: a Capacitor 8 app with `android/` and/or `ios/` added, and from
 **Dashboard → Get started** your publishable key (`st_pub_live_…`) and link domain
 (`https://<your-handle>.strait.link`).
 
+Android builds of a Capacitor 8 app need JDK 21 (Capacitor's own requirement; with JDK 17 the
+Gradle build fails). Android Studio's bundled JDK is 21; on the command line check `java -version`.
+
 **1. Install and sync**
 
 ```sh
