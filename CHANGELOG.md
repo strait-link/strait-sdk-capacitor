@@ -6,6 +6,10 @@
   SDK's backup-excluded install marker (contract B6a).
 - `trackEvent(name, { eventId })`: your order id, stored once by the engine; left out, the SDK makes
   one. Events that can't be sent (offline, 429, 5xx) are kept and sent later (contract B13a).
+- Fix (from the native SDKs, no plugin code): when the server is busy (429 or 5xx) the saved queue no
+  longer sends its whole backlog on every resume. It stops at the first 429/5xx and waits 15–30 s,
+  doubling each time in a row up to 1 hour, and at least the server's `Retry-After` (contract B14
+  backoff, C1). `flushOpenReports()` also waits while the server asked to.
 
 ## 0.3.0 (24 Oct 2026)
 - `openStoreSheet(url, options)`: the app store inside your app for one of your links (another app
