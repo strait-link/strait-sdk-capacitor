@@ -17,7 +17,7 @@ buildscript {
 
 apply plugin: 'com.android.library'
 
-// strait-sdk-android is built by JitPack from its version tags. Gradle resolves this plugin's
+// strait-sdk-android is built by JitPack from its version tags (or, between releases, a main commit). Gradle resolves this plugin's
 // dependencies with the app's repositories, so add JitPack to every project, limited to the
 // Strait group (nothing else is ever fetched from JitPack).
 rootProject.allprojects {

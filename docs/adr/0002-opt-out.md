@@ -31,7 +31,8 @@ it wraps (strait-sdk-android, StraitSDK) have one on main. An Ionic app with a c
   were cut before it). The plugin pins the main commits (JitPack `278eb41434`, SwiftPM `revision: 3ba01f8…`)
   so CI's sample builds compile against the real code; **the release re-pins to the next native tags**
   (sdk-release-plan step 8). A revision pin is fine for apps that consume the plugin by path (Capacitor's
-  `CapApp-SPM`), and it never ships to npm before that re-pin.
+  `CapApp-SPM`), and the Release workflow refuses a tag while either pin is not a release tag (a `revision:` or commit pin
+  would break apps that add the package to SwiftPM by URL and version).
 
 ## Security lens
 Spoofing / tampering: none new (a local flag in the app's sandbox). Data exposure: the point of the change.
