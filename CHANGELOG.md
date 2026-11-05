@@ -7,7 +7,9 @@
   `/v1/lookup`, which records nothing, so it still routes. Kept across launches; default on. Works before
   `start()` (applied before anything is sent). ADR `docs/adr/0002-opt-out.md`.
 - Native SDKs: strait-sdk-android and StraitSDK at the main commits that have `setEnabled` (278eb41 /
-  3ba01f8); **re-pin to their next release tags before releasing this package.**
+  3ba01f8, then ca1b4c3 for the F7 fix below); **re-pin to their next release tags before releasing this package.**
+- Fix (privacy, F7, from StraitSDK): switching off during the first-launch check no longer reads the iPhone
+  clipboard (no paste prompt for an opted-out person).
 
 ## 0.3.0 (24 Oct 2026)
 - `openStoreSheet(url, options)`: the app store inside your app for one of your links (another app

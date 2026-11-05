@@ -28,7 +28,7 @@ it wraps (strait-sdk-android, StraitSDK) have one on main. An Ionic app with a c
 - After `start()`: the SDK's `setEnabled`; the call resolves after the SDK's clearing / re-run (Android: on the
   SDK's single executor; iOS: the completion).
 - Native pins: `setEnabled` is on the native SDKs' main but in no tag yet (android v0.9.0 and swift v0.10.0
-  were cut before it). The plugin pins the main commits (JitPack `278eb41434`, SwiftPM `revision: 3ba01f8…`)
+  were cut before it). The plugin pins the main commits (JitPack `278eb41434`, SwiftPM `revision: ca1b4c3…`, which also has the F7 clipboard fix)
   so CI's sample builds compile against the real code; **the release re-pins to the next native tags**
   (sdk-release-plan step 8). A revision pin is fine for apps that consume the plugin by path (Capacitor's
   `CapApp-SPM`), and the Release workflow refuses a tag while either pin is not a release tag (a `revision:` or commit pin
