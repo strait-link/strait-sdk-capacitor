@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+- `setEnabled(enabled)` / `isEnabled()`: the opt-out switch for consent flows (India's DPDP Act, GDPR), the
+  same contract as every Strait app SDK, run by the native SDKs. While off: no open reports, events or install
+  matching, nothing remembered, and reports saved on the phone are deleted; a short link is looked up through
+  `/v1/lookup`, which records nothing, so it still routes. Kept across launches; default on. Works before
+  `start()` (applied before anything is sent). ADR `docs/adr/0002-opt-out.md`.
+- Native SDKs: strait-sdk-android and StraitSDK at the main commits that have `setEnabled` (278eb41 /
+  3ba01f8); **re-pin to their next release tags before releasing this package.**
+
 ## 0.3.0 (24 Oct 2026)
 - `openStoreSheet(url, options)`: the app store inside your app for one of your links (another app
   you want people to install), keeping the deep link through the install. Android opens Google Play's

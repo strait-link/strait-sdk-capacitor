@@ -108,6 +108,11 @@ for (const f of report.findings) console.log(f.severity, f.id, f.title, f.fix);
 `error` comes with the fix, for example `cert.missing`: "Add AB:CD:… in Dashboard → Apps & stores.
 Debug, release and Play App Signing keys each have their own fingerprint."
 
+## User consent / opt-out
+
+If your app asks for consent first (for example under India's DPDP Act or a GDPR consent flow in the EU), call `await strait.setEnabled(false)` until the person agrees: Strait then sends no open reports or events, does no install matching, and deletes reports waiting on the device. The choice is kept across launches on the phone; `setEnabled(true)` turns it back on (default: on) and `isEnabled()` reads it. It works before `start()`, so a first-launch consent screen can call it first; `setEnabled(true)` then runs the deferred check.
+Links that carry their own destination still open your screens. A Strait short link is looked up through the engine's `/v1/lookup`, which records nothing (no tap, no open, no tap id), so it still opens the right screen; only if that lookup fails (offline) does it come back `matched: false, reason: 'disabled'`. Whether you need consent, and for what, is a question for your own legal advice.
+
 ## Platform features
 
 | Feature | Status | Notes |
@@ -135,6 +140,7 @@ Debug, release and Play App Signing keys each have their own fingerprint."
 | `pendingOpenReports()` / `flushOpenReports()` | Open reports saved while offline (sent again on start and resume). |
 | `deviceClass()` | `phone` or `tablet` (iPad / 600 dp and up), as sent with open reports. |
 | `openStoreSheet(url, options?)` | The app store inside your app for one of your links (another app to install), deep link kept through the install. Options: `androidPackage`, `listing`, `inline`, `appStoreId`, `providerToken`, `customProductPageId`, `style`. Resolves `{ opened, method, clickId, linkId, referrer, reason }`. |
+| `setEnabled(enabled)` / `isEnabled()` | Opt-out switch for consent flows (see above). Kept on the phone; works before `start()`. |
 | `doctor()` | Setup check for debug builds (key, endpoint, this app listed in your link domain's files, Android signing certificate). Resolves `{ ok, findings }`. |
 | `stop()` | Stops delivering events to this object. |
 
@@ -148,11 +154,11 @@ The plugin is a thin layer. All link logic (resolving short links, the once-per-
 check, open reports and their retry queue, app-state labels) runs in the native SDKs, which share
 golden test vectors with the Strait engine:
 
-- **Android:** `strait-sdk-android` **v0.8.3** from JitPack. The plugin adds JitPack to your Gradle
+- **Android:** `strait-sdk-android` from JitPack (the version is pinned in `android/build.gradle`). The plugin adds JitPack to your Gradle
   repositories, limited to the `com.github.strait-link` group, so nothing else is ever fetched from
   it. It reads the Play Install Referrer (`com.android.installreferrer:installreferrer:2.2`), the launch
   intent and `onNewIntent`, and keeps state in SharedPreferences (`strait`).
-- **iOS:** `StraitSDK` **0.9.4+** through Swift Package Manager. Links come from Capacitor's
+- **iOS:** `StraitSDK` through Swift Package Manager (pinned in `Package.swift`). Links come from Capacitor's
   `capacitorOpenURL` / `capacitorOpenUniversalLink` notifications; state lives in `UserDefaults`.
 
 What gets recorded, the privacy details and the match methods are the same as the native SDKs:
