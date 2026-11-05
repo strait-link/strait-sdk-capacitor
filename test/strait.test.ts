@@ -19,6 +19,8 @@ function fakeNative(overrides: Partial<StraitNativePlugin> = {}) {
     deviceClass: vi.fn(async () => ({ deviceClass: 'phone' as const })),
     openStoreSheet: vi.fn(async () => ({ opened: true, method: 'market', clickId: 'c1', linkId: 'l1' })),
     doctor: vi.fn(async () => ({ ok: true, findings: [{ id: 'key.ok', severity: 'ok' as const, title: 'Publishable key is set', fix: '' }] })),
+    setEnabled: vi.fn(async () => {}),
+    isEnabled: vi.fn(async () => ({ enabled: false })),
     addListener: vi.fn(async (name: string, cb: (d: never) => void) => {
       handlers[name]!.push(cb as (d: unknown) => void);
       return { remove: async () => { removed.push(name); } };
@@ -95,6 +97,7 @@ describe('createStrait (Capacitor)', () => {
     const boom = vi.fn(async () => { throw new Error('"Strait" plugin is not implemented on web'); });
     const { native } = fakeNative({
       start: boom, checkDeferred: boom, trackEvent: boom, pendingOpenReports: boom, flushOpenReports: boom, deviceClass: boom, doctor: boom, openStoreSheet: boom,
+      setEnabled: boom, isEnabled: boom,
     });
     const s = createStrait(config, native);
     await expect(s.start()).resolves.toBeUndefined();
@@ -104,8 +107,32 @@ describe('createStrait (Capacitor)', () => {
     await expect(s.deviceClass()).resolves.toBeUndefined();
     await expect(s.doctor()).resolves.toEqual({ ok: false, findings: [] });
     await expect(s.openStoreSheet('https://hilltop.strait.link/promo')).resolves.toEqual({ opened: false, method: 'none', reason: 'unavailable' });
+    await expect(s.setEnabled(false)).resolves.toBeUndefined();
+    await expect(s.isEnabled()).resolves.toBe(true); // unreadable = on, as in every SDK
     const e = await s.checkDeferred();
     expect(e).toMatchObject({ kind: 'deferred', matched: false, reason: 'unavailable' });
+  });
+
+  // F6: the opt-out switch is the native SDK's (strait-sdk-android / StraitSDK setEnabled, persisted there).
+  it('setEnabled hands the switch to the native SDK and isEnabled reads it back', async () => {
+    const { native } = fakeNative();
+    const s = createStrait(config, native);
+    await s.setEnabled(false);
+    expect(native.setEnabled).toHaveBeenCalledWith({ enabled: false });
+    await expect(s.isEnabled()).resolves.toBe(false);
+    await s.setEnabled(true);
+    expect(native.setEnabled).toHaveBeenLastCalledWith({ enabled: true });
+  });
+
+  it('setEnabled(false) called before start() reaches the native side first (consent screen on first launch)', async () => {
+    const order: string[] = [];
+    const { native } = fakeNative({
+      start: vi.fn(async () => { order.push('start'); }),
+      setEnabled: vi.fn(async () => { order.push('setEnabled'); }),
+    });
+    const s = createStrait(config, native);
+    await Promise.all([s.setEnabled(false), s.start()]);
+    expect(order).toEqual(['setEnabled', 'start']);
   });
 
   it('checkDeferred, pendingOpenReports and deviceClass return the native values', async () => {

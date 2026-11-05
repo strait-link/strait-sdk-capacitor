@@ -10,7 +10,9 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
-        .package(url: "https://github.com/strait-link/strait-sdk-swift.git", from: "0.9.4"),
+        // setEnabled (opt-out) is on strait-sdk-swift main (3ba01f8), not in a tag yet: re-pin to the next
+        // StraitSDK release tag (`from:`) before this package is released (ops/run-1105/sdk-release-plan.md).
+        .package(url: "https://github.com/strait-link/strait-sdk-swift.git", revision: "3ba01f848b48926ca039eda088378fbfbc0e31d0"),
     ],
     targets: [
         .target(

@@ -57,10 +57,14 @@ import kotlin.Unit;
  */
 @CapacitorPlugin(name = "Strait")
 public class StraitPlugin extends Plugin {
+    /** strait-sdk-android's opt-out key in the "strait" preferences: "0" = off, absent = on. */
+    private static final String ENABLED_KEY = "strait.enabled";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private StraitClient client;
     /** A link that arrived (onNewIntent) before JS called start(). */
     private String pendingUrl;
+    /** setEnabled() before start(): applied to the client before it starts (which also clears saved reports). */
+    private Boolean pendingEnabled;
 
     @PluginMethod
     public synchronized void start(PluginCall call) {
@@ -81,7 +85,7 @@ public class StraitPlugin extends Plugin {
             if (h != null && !h.isEmpty()) hosts.add(h);
         }
         Context ctx = getContext().getApplicationContext();
-        SharedPreferences prefs = ctx.getSharedPreferences("strait", Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(ctx);
         KeyValueStore storage = new KeyValueStore() {
             @Override public String get(String k) { return prefs.getString(k, null); }
             @Override public void set(String k, String v) { prefs.edit().putString(k, v).apply(); }
@@ -101,6 +105,8 @@ public class StraitPlugin extends Plugin {
             System::currentTimeMillis,
             deviceClass(ctx)
         ));
+        if (pendingEnabled != null) client.setEnabled(pendingEnabled); // before anything is sent
+        pendingEnabled = null;
         client.onLinkStart(s -> { notifyListeners("linkStart", toJs(s), true); return Unit.INSTANCE; });
         client.onLink(e -> { notifyListeners("link", toJs(e), true); return Unit.INSTANCE; });
         client.onAppState(AppLifecycleState.ACTIVE, System.currentTimeMillis());
@@ -109,6 +115,35 @@ public class StraitPlugin extends Plugin {
         pendingUrl = null;
         client.start(initial);
         executor.execute(call::resolve); // after start's work on the same single thread
+    }
+
+    /** Opt-out switch (consent): the native SDK's setEnabled. Before start() it is saved and applied at start. */
+    @PluginMethod
+    public synchronized void setEnabled(PluginCall call) {
+        Boolean on = call.getBoolean("enabled");
+        if (on == null) {
+            call.reject("Strait: setEnabled needs enabled (true or false)");
+            return;
+        }
+        if (client != null) {
+            client.setEnabled(on);
+            executor.execute(call::resolve); // after the SDK's clearing / re-run on the same single thread
+            return;
+        }
+        pendingEnabled = on;
+        prefs(getContext()).edit().putString(ENABLED_KEY, on ? "1" : "0").apply();
+        call.resolve();
+    }
+
+    @PluginMethod
+    public synchronized void isEnabled(PluginCall call) {
+        JSObject r = new JSObject();
+        r.put("enabled", client != null ? client.isEnabled() : !"0".equals(prefs(getContext()).getString(ENABLED_KEY, null)));
+        call.resolve(r);
+    }
+
+    private static SharedPreferences prefs(Context ctx) {
+        return ctx.getApplicationContext().getSharedPreferences("strait", Context.MODE_PRIVATE);
     }
 
     @PluginMethod
