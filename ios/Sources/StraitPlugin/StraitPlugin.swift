@@ -19,12 +19,16 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "deviceClass", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "doctor", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openStoreSheet", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setEnabled", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "isEnabled", returnType: CAPPluginReturnPromise),
     ]
 
     private var links: StraitLinks?
     private var subscriptions: [StraitSubscription] = []
     /// A link that arrived before JS called start().
     private var pendingURL: URL?
+    /// setEnabled() before start(): applied to StraitLinks before it starts (which also clears saved reports).
+    private var pendingEnabled: Bool?
 
     override public func load() {
         for name in [Notification.Name.capacitorOpenURL, .capacitorOpenUniversalLink] {
@@ -51,6 +55,8 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
             let hosts = (call.getArray("linkHosts") as? [String]) ?? []
             let l = StraitLinks(StraitLinksConfig(publishableKey: key, endpoint: endpoint, linkHosts: hosts))
             links = l
+            if let on = pendingEnabled { l.setEnabled(on) } // before anything is sent
+            pendingEnabled = nil
             subscriptions = [
                 l.onLinkStart { [weak self] s in self?.notifyListeners("linkStart", data: Self.js(s), retainUntilConsumed: true) },
                 l.onLink { [weak self] e in self?.notifyListeners("link", data: Self.js(e), retainUntilConsumed: true) },
@@ -59,6 +65,27 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
             let initial = pendingURL ?? ApplicationDelegateProxy.shared.lastURL
             pendingURL = nil
             l.start(initialURL: initial) { call.resolve() }
+        }
+    }
+
+    /// Opt-out switch (consent): StraitSDK's setEnabled. Before start() it is saved (StraitLinks' default
+    /// storage, UserDefaults) and applied at start.
+    @objc func setEnabled(_ call: CAPPluginCall) {
+        guard let on = call.getBool("enabled") else {
+            call.reject("Strait: setEnabled needs enabled (true or false)")
+            return
+        }
+        DispatchQueue.main.async { [self] in
+            if let l = links { l.setEnabled(on) { call.resolve() }; return }
+            pendingEnabled = on
+            UserDefaultsStorage().setItem(StraitLinks.enabledKey, on ? "1" : "0")
+            call.resolve()
+        }
+    }
+
+    @objc func isEnabled(_ call: CAPPluginCall) {
+        DispatchQueue.main.async { [self] in
+            call.resolve(["enabled": links?.isEnabled ?? (UserDefaultsStorage().getItem(StraitLinks.enabledKey) != "0")])
         }
     }
 

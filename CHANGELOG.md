@@ -1,6 +1,16 @@
 # Changelog
 
-## 0.4.0 (unreleased, launch week; needs strait-sdk-android v0.9.0 and StraitSDK 0.10.0)
+## 0.4.0 (7 Nov 2026)
+
+Needs strait-sdk-android v0.10.0 and StraitSDK 0.11.0 (pinned by the plugin); install time passed by the plugin, no app code.
+
+- `setEnabled(enabled)` / `isEnabled()`: the opt-out switch for consent flows (India's DPDP Act, GDPR), the
+  same contract as every Strait app SDK, run by the native SDKs. While off: no open reports, events or install
+  matching, nothing remembered, and reports saved on the phone are deleted; a short link is looked up through
+  `/v1/lookup`, which records nothing, so it still routes. Kept across launches; default on. Works before
+  `start()` (applied before anything is sent). ADR `docs/adr/0002-opt-out.md`.
+- Fix (privacy, F7, from StraitSDK): switching off during the first-launch check no longer reads the iPhone
+  clipboard (no paste prompt for an opted-out person).
 - Fix: reinstalls from a link are no longer lost (Android Auto Backup / restored iPhones brought the
   once-per-install flag back). The Android side passes `firstInstallTime` to the SDK; iOS gets the
   SDK's backup-excluded install marker (contract B6a).

@@ -109,6 +109,8 @@ export interface StraitNativePlugin {
   deviceClass(): Promise<{ deviceClass?: DeviceClass }>;
   doctor(): Promise<DoctorReport>;
   openStoreSheet(options: { url: string } & StoreSheetOptions): Promise<StoreSheetResult>;
+  setEnabled(options: { enabled: boolean }): Promise<void>;
+  isEnabled(): Promise<{ enabled: boolean }>;
   addListener(event: 'link', cb: (e: LinkEvent) => void): Promise<PluginListenerHandle>;
   addListener(event: 'linkStart', cb: (s: LinkStart) => void): Promise<PluginListenerHandle>;
 }
@@ -141,6 +143,17 @@ export interface Strait {
    * want people to install), keeping the deep link through the install. Never throws.
    */
   openStoreSheet(url: string, options?: StoreSheetOptions): Promise<StoreSheetResult>;
+  /**
+   * Opt-out switch for consent flows (default on, kept on the phone across launches by the native SDK).
+   * Off: no open reports, no events, no deferred or clipboard matching, nothing remembered; reports saved
+   * earlier and the remembered tap are deleted. A link that carries its own destination still reaches
+   * onLink; a short link is looked up through /v1/lookup, which records nothing (no tap, no open, no tap
+   * id), so it still routes (`reason: 'disabled'` only if that lookup fails). Back on: sending resumes, and
+   * a first-launch check skipped while off runs now. Works before start(): call it first on a consent screen.
+   */
+  setEnabled(enabled: boolean): Promise<void>;
+  /** The opt-out switch's current value (see setEnabled). True when it can't be read (the default). */
+  isEnabled(): Promise<boolean>;
   /** Stop delivering events to this object. */
   stop(): void;
 }
@@ -215,6 +228,8 @@ export function createStrait(config: CreateStraitConfig, native: StraitNativePlu
     doctor: () => safe(() => native.doctor(), { ok: false, findings: [] } as DoctorReport),
     openStoreSheet: (url, options = {}) =>
       safe(() => native.openStoreSheet({ url, ...options }), { opened: false, method: 'none', reason: 'unavailable' } as StoreSheetResult),
+    setEnabled: (enabled) => safe(() => native.setEnabled({ enabled: enabled === true }), undefined),
+    isEnabled: () => safe(async () => (await native.isEnabled()).enabled !== false, true),
     stop() {
       linkCbs.clear();
       startCbs.clear();
