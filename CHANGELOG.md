@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- README: starts with a guided setup section (no `strait init` for this platform yet: the three steps in the quick start, or the Strait MCP `get_started` prompt), before the manual quick start.
 - `setEnabled(enabled)` / `isEnabled()`: the opt-out switch for consent flows (India's DPDP Act, GDPR), the
   same contract as every Strait app SDK, run by the native SDKs. While off: no open reports, events or install
   matching, nothing remembered, and reports saved on the phone are deleted; a short link is looked up through

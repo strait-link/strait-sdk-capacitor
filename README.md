@@ -33,6 +33,14 @@ link-open analytics. It wraps the Strait [Android](https://github.com/strait-lin
 and [iOS](https://github.com/strait-link/strait-sdk-swift) SDKs, and its API matches
 [`@straitlink/react-native`](https://github.com/strait-link/strait-sdk-react-native).
 
+## Guided setup
+
+There's no `strait init` for Capacitor yet: the three steps below are the whole setup. Or let your AI coding tool do it: connect the [Strait MCP server](https://straitlink.in/docs/mcp/) and run its `get_started` prompt with platform `capacitor`; it pastes the exact setup from the docs. Then check that your link domain lists your app:
+
+```sh
+npx @straitlink/cli doctor --host <your-handle>.strait.link --android <your.package> --ios <your.bundle.id>
+```
+
 ## Quick start (60 seconds)
 
 You need: a Capacitor 8 app with `android/` and/or `ios/` added, and from
