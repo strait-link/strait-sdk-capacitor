@@ -91,6 +91,12 @@ describe('createStrait (Capacitor)', () => {
     const s = createStrait(config, native);
     await expect(s.trackEvent('purchase', { value: 49.99, currency: 'USD' })).resolves.toBe(true);
     expect(native.trackEvent).toHaveBeenCalledWith({ name: 'purchase', value: 49.99, currency: 'USD' });
+    await s.trackEvent('purchase', { value: 5, currency: 'INR', eventId: 'ord_1001' });
+    expect(native.trackEvent).toHaveBeenLastCalledWith({ name: 'purchase', value: 5, currency: 'INR', eventId: 'ord_1001' });
+    // Review 5 Nov: the native getString() reads a number as missing, so a plain-JS number order id
+    // lost its dedupe (the SDK made a new id per call). It goes over the bridge as its string.
+    await s.trackEvent('purchase', { value: 5, eventId: 1002 as unknown as string });
+    expect(native.trackEvent).toHaveBeenLastCalledWith({ name: 'purchase', value: 5, eventId: '1002' });
   });
 
   it('never throws: native failures (web, plugin missing) give safe defaults (B10)', async () => {

@@ -10,9 +10,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
-        // setEnabled (opt-out) is on strait-sdk-swift main (ca1b4c3, incl. the F7 clipboard fix), not in a tag yet: re-pin to the next
-        // StraitSDK release tag (`from:`) before this package is released (ops/run-1105/sdk-release-plan.md).
-        .package(url: "https://github.com/strait-link/strait-sdk-swift.git", revision: "ca1b4c36cee9bb7b22701d5f8d5907a55fc25513"),
+        .package(url: "https://github.com/strait-link/strait-sdk-swift.git", from: "0.11.0"), // setEnabled + F7 + B6a/B13a/C1 (StraitSDK 0.11.0)
     ],
     targets: [
         .target(

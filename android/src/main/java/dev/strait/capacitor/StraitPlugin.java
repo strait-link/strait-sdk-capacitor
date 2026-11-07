@@ -103,7 +103,8 @@ public class StraitPlugin extends Plugin {
             new UrlConnectionTransport(10_000, 10_000),
             executor,
             System::currentTimeMillis,
-            deviceClass(ctx)
+            deviceClass(ctx),
+            () -> installTime(ctx) // B6a: Auto Backup restores the flag; a new install time re-runs the check
         ));
         if (pendingEnabled != null) client.setEnabled(pendingEnabled); // before anything is sent
         pendingEnabled = null;
@@ -146,6 +147,15 @@ public class StraitPlugin extends Plugin {
         return ctx.getApplicationContext().getSharedPreferences("strait", Context.MODE_PRIVATE);
     }
 
+    /** This install's time (PackageInfo.firstInstallTime, epoch ms), or null; contract B6a. */
+    private static Long installTime(Context ctx) {
+        try {
+            return ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).firstInstallTime;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     @PluginMethod
     public void checkDeferred(PluginCall call) {
         StraitClient c = ready(call);
@@ -166,9 +176,10 @@ public class StraitPlugin extends Plugin {
         String currency = call.getString("currency");
         String linkId = call.getString("linkId");
         String clickId = call.getString("clickId");
+        String eventId = call.getString("eventId");
         executor.execute(() -> {
             JSObject r = new JSObject();
-            r.put("accepted", c.trackEvent(name, value, currency, linkId, clickId));
+            r.put("accepted", c.trackEvent(name, value, currency, linkId, clickId, eventId));
             call.resolve(r);
         });
     }

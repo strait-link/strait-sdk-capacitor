@@ -1,16 +1,26 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 (7 Nov 2026)
+
+Needs strait-sdk-android v0.10.0 and StraitSDK 0.11.0 (pinned by the plugin); install time passed by the plugin, no app code.
+
 - README: starts with a guided setup section (no `strait init` for this platform yet: the three steps in the quick start, or the Strait MCP `get_started` prompt), before the manual quick start.
 - `setEnabled(enabled)` / `isEnabled()`: the opt-out switch for consent flows (India's DPDP Act, GDPR), the
   same contract as every Strait app SDK, run by the native SDKs. While off: no open reports, events or install
   matching, nothing remembered, and reports saved on the phone are deleted; a short link is looked up through
   `/v1/lookup`, which records nothing, so it still routes. Kept across launches; default on. Works before
   `start()` (applied before anything is sent). ADR `docs/adr/0002-opt-out.md`.
-- Native SDKs: strait-sdk-android and StraitSDK at the main commits that have `setEnabled` (278eb41 /
-  3ba01f8, then ca1b4c3 for the F7 fix below); **re-pin to their next release tags before releasing this package.**
 - Fix (privacy, F7, from StraitSDK): switching off during the first-launch check no longer reads the iPhone
   clipboard (no paste prompt for an opted-out person).
+- Fix: reinstalls from a link are no longer lost (Android Auto Backup / restored iPhones brought the
+  once-per-install flag back). The Android side passes `firstInstallTime` to the SDK; iOS gets the
+  SDK's backup-excluded install marker (contract B6a).
+- `trackEvent(name, { eventId })`: your order id, stored once by the engine; left out, the SDK makes
+  one. Events that can't be sent (offline, 429, 5xx) are kept and sent later (contract B13a).
+- Fix (from the native SDKs, no plugin code): when the server is busy (429 or 5xx) the saved queue no
+  longer sends its whole backlog on every resume. It stops at the first 429/5xx and waits 15–30 s,
+  doubling each time in a row up to 1 hour, and at least the server's `Retry-After` (contract B14
+  backoff, C1). `flushOpenReports()` also waits while the server asked to.
 
 ## 0.3.0 (24 Oct 2026)
 - `openStoreSheet(url, options)`: the app store inside your app for one of your links (another app

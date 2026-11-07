@@ -1,5 +1,5 @@
 {
-  "originHash" : "1d0ad5d3795b2a3d880456472132fe3eba586896875fffcf3697b24178fa1cde",
+  "originHash" : "30ab0874d5c18d1f55d5b5bf5978f7b8e64f7bd5eaea013d6939f436c0df7057",
   "pins" : [
     {
       "identity" : "capacitor-swift-pm",
@@ -15,7 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/strait-link/strait-sdk-swift.git",
       "state" : {
-        "revision" : "ca1b4c36cee9bb7b22701d5f8d5907a55fc25513"
+        "revision" : "5f8e096b96df344f8c6ec6147e778840ffba318b",
+        "version" : "0.11.0"
       }
     }
   ],

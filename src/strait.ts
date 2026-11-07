@@ -95,6 +95,8 @@ export interface TrackEventExtra {
   currency?: string;
   linkId?: string;
   clickId?: string;
+  /** Your id for this conversion, e.g. the order id (1-64 of A-Z a-z 0-9 _ . : -). Stored once (B13a). */
+  eventId?: string;
 }
 
 /** The native side (Android: StraitPlugin.java over strait-sdk-android; iOS: StraitPlugin.swift over StraitSDK). */
@@ -214,7 +216,12 @@ export function createStrait(config: CreateStraitConfig, native: StraitNativePlu
         id: '', kind: 'deferred', route: 'fingerprint', appState: 'foreground',
         matched: false, reason: 'unavailable', ms: 0, at: Date.now(),
       } as LinkEvent),
-    trackEvent: (name, extra = {}) => safe(async () => (await native.trackEvent({ name, ...extra })).accepted === true, false),
+    trackEvent: (name, extra = {}) =>
+      safe(async () => {
+        // Native getString() reads a number as missing: send a plain-JS number order id as its string (B13a).
+        const eventId = extra.eventId != null && extra.eventId !== '' ? { eventId: String(extra.eventId) } : {};
+        return (await native.trackEvent({ name, ...extra, ...eventId })).accepted === true;
+      }, false),
     pendingOpenReports: () => safe(async () => (await native.pendingOpenReports()).count ?? 0, 0),
     flushOpenReports: () => safe(() => native.flushOpenReports(), undefined),
     deviceClass: () => safe(async () => (await native.deviceClass()).deviceClass, undefined),

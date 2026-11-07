@@ -1,8 +1,6 @@
 // @straitlink/capacitor, Android side: a thin Capacitor plugin over strait-sdk-android (JitPack).
 ext {
-    // setEnabled (opt-out) is on strait-sdk-android main (278eb41), not in a tag yet: JitPack builds the commit.
-    // Re-pin to the next release tag before this package is released (ops/run-1105/sdk-release-plan.md).
-    straitSdkVersion = '278eb41434'
+    straitSdkVersion = 'v0.10.0' // setEnabled + B6a/B13a/C1 (strait-sdk-android v0.10.0)
 }
 
 buildscript {

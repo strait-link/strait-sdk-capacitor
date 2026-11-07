@@ -105,7 +105,8 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
             value: call.getDouble("value"),
             currency: call.getString("currency"),
             linkId: call.getString("linkId"),
-            clickId: call.getString("clickId")
+            clickId: call.getString("clickId"),
+            eventId: call.getString("eventId")
         ) { ok in call.resolve(["accepted": ok]) }
     }
 
