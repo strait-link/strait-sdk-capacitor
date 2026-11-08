@@ -162,11 +162,11 @@ The plugin is a thin layer. All link logic (resolving short links, the once-per-
 check, open reports and their retry queue, app-state labels) runs in the native SDKs, which share
 golden test vectors with the Strait engine:
 
-- **Android:** `strait-sdk-android` **v0.10.0** from JitPack (the version is pinned in `android/build.gradle`). The plugin adds JitPack to your Gradle
+- **Android:** `strait-sdk-android` **v0.10.1** from JitPack (the version is pinned in `android/build.gradle`). The plugin adds JitPack to your Gradle
   repositories, limited to the `com.github.strait-link` group, so nothing else is ever fetched from
   it. It reads the Play Install Referrer (`com.android.installreferrer:installreferrer:2.2`), the launch
   intent and `onNewIntent`, and keeps state in SharedPreferences (`strait`).
-- **iOS:** `StraitSDK` **0.11.0+** through Swift Package Manager (pinned in `Package.swift`). Links come from Capacitor's
+- **iOS:** `StraitSDK` **0.11.1+** through Swift Package Manager (pinned in `Package.swift`). Links come from Capacitor's
   `capacitorOpenURL` / `capacitorOpenUniversalLink` notifications; state lives in `UserDefaults`.
 
 **Reinstalls (contract B6a):** Android Auto Backup and restored iPhones bring the "deferred check

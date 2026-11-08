@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1 (8 Nov 2026)
+
+Needs strait-sdk-android v0.10.1 and StraitSDK 0.11.1 (pinned by the plugin).
+
+- `doctor()`: on a Strait link domain before Dashboard → Apps & stores is filled in (it answers 404 `{"error":"not configured"}`), the finding is now `app.none` with "Fill in Dashboard → Apps & stores (package name and SHA-256 fingerprint / Team ID and bundle ID), wait a minute, then check again", not "use your Strait link domain" (shared-spec ADR 0002 amendment). Comes from the native SDKs: Android v0.10.1 is now pinned (iOS `from: "0.11.0"` already resolved 0.11.1 on a fresh install; now the floor).
+
 ## 0.4.0 (7 Nov 2026)
 
 Needs strait-sdk-android v0.10.0 and StraitSDK 0.11.0 (pinned by the plugin); install time passed by the plugin, no app code.
