@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/strait-link/strait-sdk-swift.git",
       "state" : {
-        "revision" : "5f8e096b96df344f8c6ec6147e778840ffba318b",
-        "version" : "0.11.0"
+        "revision" : "99ae305c1c2be6a711f18fcec2d32e59e0e39cb9",
+        "version" : "0.11.1"
       }
     }
   ],
