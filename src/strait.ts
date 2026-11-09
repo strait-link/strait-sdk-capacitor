@@ -111,6 +111,7 @@ export interface StraitNativePlugin {
   openStoreSheet(options: { url: string } & StoreSheetOptions): Promise<StoreSheetResult>;
   setEnabled(options: { enabled: boolean }): Promise<void>;
   isEnabled(): Promise<{ enabled: boolean }>;
+  setUserId(options: { id: string | null }): Promise<void>;
   addListener(event: 'link', cb: (e: LinkEvent) => void): Promise<PluginListenerHandle>;
   addListener(event: 'linkStart', cb: (s: LinkStart) => void): Promise<PluginListenerHandle>;
 }
@@ -154,6 +155,14 @@ export interface Strait {
   setEnabled(enabled: boolean): Promise<void>;
   /** The opt-out switch's current value (see setEnabled). True when it can't be read (the default). */
   isEnabled(): Promise<boolean>;
+  /**
+   * Your own user id, after your sign-in (contract B27): later trackEvent calls carry it to your app.event
+   * webhook (`userId`, `userIdHashed`), so you can join Strait events to your users. The native SDK hashes an
+   * email or phone number on the phone (SHA-256) before anything is sent. Memory only: call it again when the
+   * app starts with a user already signed in, and `setUserId(null)` on sign-out. Ignored while switched off
+   * (setEnabled(false) also clears it). Works before start(). Never throws.
+   */
+  setUserId(id: string | null): Promise<void>;
   /** Stop delivering events to this object. */
   stop(): void;
 }
@@ -230,6 +239,7 @@ export function createStrait(config: CreateStraitConfig, native: StraitNativePlu
       safe(() => native.openStoreSheet({ url, ...options }), { opened: false, method: 'none', reason: 'unavailable' } as StoreSheetResult),
     setEnabled: (enabled) => safe(() => native.setEnabled({ enabled: enabled === true }), undefined),
     isEnabled: () => safe(async () => (await native.isEnabled()).enabled !== false, true),
+    setUserId: (id) => safe(() => native.setUserId({ id: typeof id === 'string' ? id : null }), undefined),
     stop() {
       linkCbs.clear();
       startCbs.clear();

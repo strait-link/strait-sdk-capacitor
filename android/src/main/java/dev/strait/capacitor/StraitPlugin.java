@@ -60,13 +60,15 @@ public class StraitPlugin extends Plugin {
     /** strait-sdk-android's opt-out key in the "strait" preferences: "0" = off, absent = on. */
     private static final String ENABLED_KEY = "strait.enabled";
     /** Sent as sdkVersion instead of the Android SDK's own (contract B25): equals package.json "version" (a test checks it). */
-    static final String SDK_VERSION = "capacitor/0.4.4";
+    static final String SDK_VERSION = "capacitor/0.4.5";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private StraitClient client;
     /** A link that arrived (onNewIntent) before JS called start(). */
     private String pendingUrl;
     /** setEnabled() before start(): applied to the client before it starts (which also clears saved reports). */
     private Boolean pendingEnabled;
+    /** setUserId() before start() (B27): handed to the client at start, after the opt-out switch. Memory only. */
+    private String pendingUserId;
 
     @PluginMethod
     public synchronized void start(PluginCall call) {
@@ -112,6 +114,8 @@ public class StraitPlugin extends Plugin {
         ));
         if (pendingEnabled != null) client.setEnabled(pendingEnabled); // before anything is sent
         pendingEnabled = null;
+        if (pendingUserId != null) client.setUserId(pendingUserId);
+        pendingUserId = null;
         client.onLinkStart(s -> { notifyListeners("linkStart", toJs(s), true); return Unit.INSTANCE; });
         client.onLink(e -> { notifyListeners("link", toJs(e), true); return Unit.INSTANCE; });
         client.onAppState(AppLifecycleState.ACTIVE, System.currentTimeMillis());
@@ -137,6 +141,16 @@ public class StraitPlugin extends Plugin {
         }
         pendingEnabled = on;
         prefs(getContext()).edit().putString(ENABLED_KEY, on ? "1" : "0").apply();
+        call.resolve();
+    }
+
+    /** Your own user id for later events (contract B27): the native SDK's setUserId (emails and phone numbers are
+     *  hashed there, on the phone). A null / missing id clears it. Never logged. */
+    @PluginMethod
+    public synchronized void setUserId(PluginCall call) {
+        String id = call.getString("id");
+        if (client != null) client.setUserId(id);
+        else pendingUserId = id;
         call.resolve();
     }
 

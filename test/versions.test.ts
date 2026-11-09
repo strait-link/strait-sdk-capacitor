@@ -32,3 +32,21 @@ describe('Play install referrer on the install (B26)', () => {
     expect(java).toMatch(/\(\) -> debugReferrer != null \? debugReferrer : readInstallReferrer\(ctx\)/);
   });
 });
+
+// Contract B27 (shared-spec ADR 0009): setUserId lives in the native cores from Android v0.10.5 / StraitSDK 0.11.5;
+// both plugins forward it (and keep one set before start() for the start).
+describe('setUserId (B27)', () => {
+  it('pins cores that have setUserId and both plugins forward it', () => {
+    const pin = /straitSdkVersion = 'v(\d+)\.(\d+)\.(\d+)'/.exec(read('android/build.gradle'));
+    const [maj, min, patch] = pin!.slice(1).map(Number);
+    expect(maj * 1e6 + min * 1e3 + patch).toBeGreaterThanOrEqual(10_005);
+    const swiftPin = /strait-sdk-swift\.git", from: "(\d+)\.(\d+)\.(\d+)"/.exec(read('Package.swift'));
+    expect(swiftPin).not.toBeNull();
+    const [smaj, smin, spatch] = swiftPin!.slice(1).map(Number);
+    expect(smaj * 1e6 + smin * 1e3 + spatch).toBeGreaterThanOrEqual(11_005);
+    expect(java).toMatch(/public synchronized void setUserId\(PluginCall call\)/);
+    expect(java).toMatch(/if \(pendingUserId != null\) client\.setUserId\(pendingUserId\);/);
+    expect(swift).toContain('CAPPluginMethod(name: "setUserId"');
+    expect(swift).toMatch(/if let id = pendingUserId \{ l\.setUserId\(id\) \}/);
+  });
+});

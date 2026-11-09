@@ -21,6 +21,7 @@ function fakeNative(overrides: Partial<StraitNativePlugin> = {}) {
     doctor: vi.fn(async () => ({ ok: true, findings: [{ id: 'key.ok', severity: 'ok' as const, title: 'Publishable key is set', fix: '' }] })),
     setEnabled: vi.fn(async () => {}),
     isEnabled: vi.fn(async () => ({ enabled: false })),
+    setUserId: vi.fn(async () => {}),
     addListener: vi.fn(async (name: string, cb: (d: never) => void) => {
       handlers[name]!.push(cb as (d: unknown) => void);
       return { remove: async () => { removed.push(name); } };
@@ -103,7 +104,7 @@ describe('createStrait (Capacitor)', () => {
     const boom = vi.fn(async () => { throw new Error('"Strait" plugin is not implemented on web'); });
     const { native } = fakeNative({
       start: boom, checkDeferred: boom, trackEvent: boom, pendingOpenReports: boom, flushOpenReports: boom, deviceClass: boom, doctor: boom, openStoreSheet: boom,
-      setEnabled: boom, isEnabled: boom,
+      setEnabled: boom, isEnabled: boom, setUserId: boom,
     });
     const s = createStrait(config, native);
     await expect(s.start()).resolves.toBeUndefined();
@@ -115,8 +116,21 @@ describe('createStrait (Capacitor)', () => {
     await expect(s.openStoreSheet('https://hilltop.strait.link/promo')).resolves.toEqual({ opened: false, method: 'none', reason: 'unavailable' });
     await expect(s.setEnabled(false)).resolves.toBeUndefined();
     await expect(s.isEnabled()).resolves.toBe(true); // unreadable = on, as in every SDK
+    await expect(s.setUserId('user_1')).resolves.toBeUndefined();
     const e = await s.checkDeferred();
     expect(e).toMatchObject({ kind: 'deferred', matched: false, reason: 'unavailable' });
+  });
+
+  // B27: setUserId goes to the native SDK, which hashes emails / phone numbers on the phone and keeps it in memory.
+  it('setUserId hands the id to the native SDK; null (or a non-string) clears it', async () => {
+    const { native } = fakeNative();
+    const s = createStrait(config, native);
+    await s.setUserId('user_4821');
+    expect(native.setUserId).toHaveBeenLastCalledWith({ id: 'user_4821' });
+    await s.setUserId(null);
+    expect(native.setUserId).toHaveBeenLastCalledWith({ id: null });
+    await s.setUserId(42 as unknown as string);
+    expect(native.setUserId).toHaveBeenLastCalledWith({ id: null });
   });
 
   // F6: the opt-out switch is the native SDK's (strait-sdk-android / StraitSDK setEnabled, persisted there).

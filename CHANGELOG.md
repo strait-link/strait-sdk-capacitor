@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.5 (10 Nov 2026)
+
+Needs strait-sdk-android v0.10.5 and StraitSDK 0.11.5 (pinned by the plugin).
+
+- `setUserId(id)` (contract B27, shared-spec ADR 0009): call it after your sign-in and `setUserId(null)` on sign-out.
+  Later `trackEvent` calls carry the id to your `app.event` webhook (`userId`, `userIdHashed`), so you can join Strait
+  events to your own users and see which campaigns bring paying ones. The native SDKs hash emails and phone numbers on
+  the phone (SHA-256) and keep the id in memory only; it is never logged, and nothing is sent while switched off.
+  Works before `start()` (handed to the native SDK at start, after the opt-out switch).
+
 ## 0.4.4 (9 Nov 2026)
 
 Needs strait-sdk-android v0.10.4 and StraitSDK 0.11.3 (pinned by the plugin).
