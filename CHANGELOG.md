@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.4 (9 Nov 2026)
+
+Needs strait-sdk-android v0.10.4 and StraitSDK 0.11.3 (pinned by the plugin).
+
+- Android installs now keep their campaign. strait-sdk-android v0.10.4 sends the Google Play install referrer the plugin
+  already reads (`installReferrer`, contract B26, shared-spec ADR 0008) with the call that records the install, so
+  Strait can show which campaign brought it (`utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`)
+  even when the ad never went through a Strait link. Strait keeps only those five tags; `gclid` and everything else is
+  dropped on arrival and the raw string is never stored. Nothing is sent while switched off. No app code needed; iOS
+  unchanged.
+
 ## 0.4.3 (9 Nov 2026)
 
 Needs strait-sdk-android v0.10.2 and StraitSDK 0.11.3 (pinned by the plugin).

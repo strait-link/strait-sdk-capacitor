@@ -25,7 +25,7 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
 
     /// Sent as `sdkVersion` instead of StraitSDK's own (contract B25): equals package.json "version" (a test checks it).
     /// The app version is StraitSDK's default (`CFBundleShortVersionString`).
-    static let sdkVersion = "capacitor/0.4.3"
+    static let sdkVersion = "capacitor/0.4.4"
 
     private var links: StraitLinks?
     private var subscriptions: [StraitSubscription] = []

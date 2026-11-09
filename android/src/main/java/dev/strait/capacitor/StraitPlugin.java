@@ -60,7 +60,7 @@ public class StraitPlugin extends Plugin {
     /** strait-sdk-android's opt-out key in the "strait" preferences: "0" = off, absent = on. */
     private static final String ENABLED_KEY = "strait.enabled";
     /** Sent as sdkVersion instead of the Android SDK's own (contract B25): equals package.json "version" (a test checks it). */
-    static final String SDK_VERSION = "capacitor/0.4.3";
+    static final String SDK_VERSION = "capacitor/0.4.4";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private StraitClient client;
     /** A link that arrived (onNewIntent) before JS called start(). */
