@@ -166,7 +166,7 @@ golden test vectors with the Strait engine:
   repositories, limited to the `com.github.strait-link` group, so nothing else is ever fetched from
   it. It reads the Play Install Referrer (`com.android.installreferrer:installreferrer:2.2`), the launch
   intent and `onNewIntent`, and keeps state in SharedPreferences (`strait`).
-- **iOS:** `StraitSDK` **0.11.1+** through Swift Package Manager (pinned in `Package.swift`). Links come from Capacitor's
+- **iOS:** `StraitSDK` **0.11.2+** through Swift Package Manager (pinned in `Package.swift`). Links come from Capacitor's
   `capacitorOpenURL` / `capacitorOpenUniversalLink` notifications; state lives in `UserDefaults`.
 
 **Reinstalls (contract B6a):** Android Auto Backup and restored iPhones bring the "deferred check
