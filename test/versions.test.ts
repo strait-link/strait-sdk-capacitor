@@ -20,3 +20,15 @@ describe('versions sent with opens and installs (B25)', () => {
     expect(swift).toMatch(/StraitLinksConfig\([^)]*sdkVersion: Self\.sdkVersion\)/);
   });
 });
+
+// Contract B26 (shared-spec ADR 0008): the Android core sends the Play install referrer (installReferrer) with the
+// install from v0.10.4; the plugin hands it the referrer it reads, so pinning that core is the whole change.
+describe('Play install referrer on the install (B26)', () => {
+  it('pins strait-sdk-android v0.10.4 or later and passes the referrer it reads into StraitConfig', () => {
+    const pin = /straitSdkVersion = 'v(\d+)\.(\d+)\.(\d+)'/.exec(read('android/build.gradle'));
+    expect(pin).not.toBeNull();
+    const [maj, min, patch] = pin!.slice(1).map(Number);
+    expect(maj * 1e6 + min * 1e3 + patch).toBeGreaterThanOrEqual(10_004);
+    expect(java).toMatch(/\(\) -> debugReferrer != null \? debugReferrer : readInstallReferrer\(ctx\)/);
+  });
+});

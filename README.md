@@ -162,7 +162,7 @@ The plugin is a thin layer. All link logic (resolving short links, the once-per-
 check, open reports and their retry queue, app-state labels) runs in the native SDKs, which share
 golden test vectors with the Strait engine:
 
-- **Android:** `strait-sdk-android` **v0.10.2** from JitPack (the version is pinned in `android/build.gradle`). The plugin adds JitPack to your Gradle
+- **Android:** `strait-sdk-android` **v0.10.4** from JitPack (the version is pinned in `android/build.gradle`). The plugin adds JitPack to your Gradle
   repositories, limited to the `com.github.strait-link` group, so nothing else is ever fetched from
   it. It reads the Play Install Referrer (`com.android.installreferrer:installreferrer:2.2`), the launch
   intent and `onNewIntent`, and keeps state in SharedPreferences (`strait`).
