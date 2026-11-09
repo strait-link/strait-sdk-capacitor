@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.6 (10 Nov 2026)
+
+Needs strait-sdk-android v0.10.6 and StraitSDK 0.11.6 (pinned by the plugin).
+
+- `setUserId` hashes more ways of writing a phone number, so none leaves the phone raw (contract B27 v15, shared-spec
+  ADR 0010, in the native SDKs): `(+91) 98765 43210`, `00 91 …`, numbers copied from the contacts app (no-break
+  spaces, invisible direction marks), Unicode dashes and the minus sign, `/`, `tel:` links, full-width digits and
+  Indian / Arabic digits. **The hashed form of a phone now keeps its `+`:** `+91 98765 43210` and `0091 98765 43210`
+  are sent as `sha256("+919876543210")` (E.164, as most apps store it); `98765 43210` stays `sha256("9876543210")`.
+
 ## 0.4.5 (10 Nov 2026)
 
 Needs strait-sdk-android v0.10.5 and StraitSDK 0.11.5 (pinned by the plugin).
