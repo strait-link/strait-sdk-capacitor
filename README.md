@@ -162,17 +162,21 @@ The plugin is a thin layer. All link logic (resolving short links, the once-per-
 check, open reports and their retry queue, app-state labels) runs in the native SDKs, which share
 golden test vectors with the Strait engine:
 
-- **Android:** `strait-sdk-android` **v0.10.1** from JitPack (the version is pinned in `android/build.gradle`). The plugin adds JitPack to your Gradle
+- **Android:** `strait-sdk-android` **v0.10.2** from JitPack (the version is pinned in `android/build.gradle`). The plugin adds JitPack to your Gradle
   repositories, limited to the `com.github.strait-link` group, so nothing else is ever fetched from
   it. It reads the Play Install Referrer (`com.android.installreferrer:installreferrer:2.2`), the launch
   intent and `onNewIntent`, and keeps state in SharedPreferences (`strait`).
-- **iOS:** `StraitSDK` **0.11.2+** through Swift Package Manager (pinned in `Package.swift`). Links come from Capacitor's
+- **iOS:** `StraitSDK` **0.11.3+** through Swift Package Manager (pinned in `Package.swift`). Links come from Capacitor's
   `capacitorOpenURL` / `capacitorOpenUniversalLink` notifications; state lives in `UserDefaults`.
 
 **Reinstalls (contract B6a):** Android Auto Backup and restored iPhones bring the "deferred check
 done" flag back after a reinstall. The plugin passes the app's install time to the native SDKs
 (Android `firstInstallTime`; iOS a marker file kept out of backups), so a reinstall from a link still
 gets its deferred link and is counted. An app update is never a new install. No app code needed.
+
+**Versions on each open (contract B25):** every open and install the plugin records carries your app's
+version (Android `versionName`, iOS `CFBundleShortVersionString`) and `capacitor/<plugin version>` as the SDK
+version, so Dashboard and the taps export show which build sent it. No app code needed.
 
 What gets recorded, the privacy details and the match methods are the same as the native SDKs:
 see [Android](https://github.com/strait-link/strait-sdk-android#what-strait-records-automatically-no-extra-code)
