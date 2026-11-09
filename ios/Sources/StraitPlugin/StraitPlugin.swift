@@ -21,11 +21,12 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "openStoreSheet", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "setEnabled", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "isEnabled", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setUserId", returnType: CAPPluginReturnPromise),
     ]
 
     /// Sent as `sdkVersion` instead of StraitSDK's own (contract B25): equals package.json "version" (a test checks it).
     /// The app version is StraitSDK's default (`CFBundleShortVersionString`).
-    static let sdkVersion = "capacitor/0.4.4"
+    static let sdkVersion = "capacitor/0.4.5"
 
     private var links: StraitLinks?
     private var subscriptions: [StraitSubscription] = []
@@ -33,6 +34,8 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
     private var pendingURL: URL?
     /// setEnabled() before start(): applied to StraitLinks before it starts (which also clears saved reports).
     private var pendingEnabled: Bool?
+    /// setUserId() before start() (B27): handed to StraitLinks at start, after the opt-out switch. Memory only.
+    private var pendingUserId: String?
 
     override public func load() {
         for name in [Notification.Name.capacitorOpenURL, .capacitorOpenUniversalLink] {
@@ -61,6 +64,8 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
             links = l
             if let on = pendingEnabled { l.setEnabled(on) } // before anything is sent
             pendingEnabled = nil
+            if let id = pendingUserId { l.setUserId(id) }
+            pendingUserId = nil
             subscriptions = [
                 l.onLinkStart { [weak self] s in self?.notifyListeners("linkStart", data: Self.js(s), retainUntilConsumed: true) },
                 l.onLink { [weak self] e in self?.notifyListeners("link", data: Self.js(e), retainUntilConsumed: true) },
@@ -83,6 +88,16 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
             if let l = links { l.setEnabled(on) { call.resolve() }; return }
             pendingEnabled = on
             UserDefaultsStorage().setItem(StraitLinks.enabledKey, on ? "1" : "0")
+            call.resolve()
+        }
+    }
+
+    /// Your own user id for later events (contract B27): StraitSDK's setUserId (emails and phone numbers are
+    /// hashed there, on the phone). nil / missing `id` clears it. Never logged.
+    @objc func setUserId(_ call: CAPPluginCall) {
+        let id = call.getString("id")
+        DispatchQueue.main.async { [self] in
+            if let l = links { l.setUserId(id) } else { pendingUserId = id }
             call.resolve()
         }
     }

@@ -10,7 +10,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
-        .package(url: "https://github.com/strait-link/strait-sdk-swift.git", from: "0.11.3"), // + StraitLinksConfig.sdkVersion, so the plugin names itself (B25) (StraitSDK 0.11.3)
+        .package(url: "https://github.com/strait-link/strait-sdk-swift.git", from: "0.11.5"), // + setUserId (B27) (StraitSDK 0.11.5)
     ],
     targets: [
         .target(
