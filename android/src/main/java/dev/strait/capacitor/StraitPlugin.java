@@ -59,6 +59,8 @@ import kotlin.Unit;
 public class StraitPlugin extends Plugin {
     /** strait-sdk-android's opt-out key in the "strait" preferences: "0" = off, absent = on. */
     private static final String ENABLED_KEY = "strait.enabled";
+    /** Sent as sdkVersion instead of the Android SDK's own (contract B25): equals package.json "version" (a test checks it). */
+    static final String SDK_VERSION = "capacitor/0.4.3";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private StraitClient client;
     /** A link that arrived (onNewIntent) before JS called start(). */
@@ -104,7 +106,9 @@ public class StraitPlugin extends Plugin {
             executor,
             System::currentTimeMillis,
             deviceClass(ctx),
-            () -> installTime(ctx) // B6a: Auto Backup restores the flag; a new install time re-runs the check
+            () -> installTime(ctx), // B6a: Auto Backup restores the flag; a new install time re-runs the check
+            () -> appVersion(ctx),
+            SDK_VERSION
         ));
         if (pendingEnabled != null) client.setEnabled(pendingEnabled); // before anything is sent
         pendingEnabled = null;
@@ -145,6 +149,15 @@ public class StraitPlugin extends Plugin {
 
     private static SharedPreferences prefs(Context ctx) {
         return ctx.getApplicationContext().getSharedPreferences("strait", Context.MODE_PRIVATE);
+    }
+
+    /** The app's versionName (sent as appVersion with opens and installs, B25), or null. */
+    private static String appVersion(Context ctx) {
+        try {
+            return ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /** This install's time (PackageInfo.firstInstallTime, epoch ms), or null; contract B6a. */

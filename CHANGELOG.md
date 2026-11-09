@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.3 (9 Nov 2026)
+
+Needs strait-sdk-android v0.10.2 and StraitSDK 0.11.3 (pinned by the plugin).
+
+- Fix: opens and installs now name the plugin and the app build. They said `sdkVersion = 0.10.1` (the Android core;
+  iOS: StraitSDK's version) and, on Android, no app version, so support could not tell a Capacitor app from a native one.
+  Now `sdkVersion = capacitor/0.4.3` on both sides (contract B25, shared-spec ADR 0006) and `appVersion` = the app's
+  `versionName` on Android (iOS already sent `CFBundleShortVersionString`). No app code needed.
+
 ## 0.4.2 (9 Nov 2026)
 
 Needs strait-sdk-android v0.10.1 and StraitSDK 0.11.2 (pinned by the plugin).

@@ -23,6 +23,10 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "isEnabled", returnType: CAPPluginReturnPromise),
     ]
 
+    /// Sent as `sdkVersion` instead of StraitSDK's own (contract B25): equals package.json "version" (a test checks it).
+    /// The app version is StraitSDK's default (`CFBundleShortVersionString`).
+    static let sdkVersion = "capacitor/0.4.3"
+
     private var links: StraitLinks?
     private var subscriptions: [StraitSubscription] = []
     /// A link that arrived before JS called start().
@@ -53,7 +57,7 @@ public class StraitPlugin: CAPPlugin, CAPBridgedPlugin {
                 return
             }
             let hosts = (call.getArray("linkHosts") as? [String]) ?? []
-            let l = StraitLinks(StraitLinksConfig(publishableKey: key, endpoint: endpoint, linkHosts: hosts))
+            let l = StraitLinks(StraitLinksConfig(publishableKey: key, endpoint: endpoint, linkHosts: hosts, sdkVersion: Self.sdkVersion))
             links = l
             if let on = pendingEnabled { l.setEnabled(on) } // before anything is sent
             pendingEnabled = nil
