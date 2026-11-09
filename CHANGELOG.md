@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2 (9 Nov 2026)
+
+Needs strait-sdk-android v0.10.1 and StraitSDK 0.11.2 (pinned by the plugin).
+
+- iPhone install matching across IPv4 / IPv6 (contract B24, engine ADR 0101): when Safari tapped the link over IPv4 and the app's first launch asks over IPv6, StraitSDK 0.11.2 asks the engine's IPv4-only URL once more with the same request (nothing new collected). A match there is `probable`, never `exact`. Re-pinned iOS to `from: "0.11.2"`.
+
 ## 0.4.1 (8 Nov 2026)
 
 Needs strait-sdk-android v0.10.1 and StraitSDK 0.11.1 (pinned by the plugin).

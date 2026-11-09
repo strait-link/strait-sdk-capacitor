@@ -10,7 +10,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
-        .package(url: "https://github.com/strait-link/strait-sdk-swift.git", from: "0.11.1"), // setEnabled + F7 + B6a/B13a/C1 + doctor Apps & stores fix (StraitSDK 0.11.1)
+        .package(url: "https://github.com/strait-link/strait-sdk-swift.git", from: "0.11.2"), // setEnabled + F7 + B6a/B13a/C1 + doctor fix + B24 IPv4 second ask (StraitSDK 0.11.2)
     ],
     targets: [
         .target(
