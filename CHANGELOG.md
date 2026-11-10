@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.7 (10 Nov 2026)
+
+- Re-pins Android `strait-sdk-android` v0.10.7 and iOS `StraitSDK` 0.11.7: `setUserId` lower-cases an email the same
+  way in every Strait SDK (contract B27 v16, shared-spec ADR 0011), letter by letter: `İ` → `i̇`, `Σ` → `σ` (never the
+  word-final `ς`). ASCII emails keep their hash.
+
 ## 0.4.6 (10 Nov 2026)
 
 Needs strait-sdk-android v0.10.6 and StraitSDK 0.11.6 (pinned by the plugin).

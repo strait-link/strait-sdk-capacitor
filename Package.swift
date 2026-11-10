@@ -10,7 +10,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
-        .package(url: "https://github.com/strait-link/strait-sdk-swift.git", from: "0.11.6"), // + setUserId v15 phone rule (B27, shared-spec ADR 0010) (StraitSDK 0.11.6)
+        .package(url: "https://github.com/strait-link/strait-sdk-swift.git", from: "0.11.7"), // + setUserId v16 email lower-case (B27, shared-spec ADR 0011) (StraitSDK 0.11.7)
     ],
     targets: [
         .target(

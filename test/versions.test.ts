@@ -61,3 +61,14 @@ describe('setUserId phone rule v15 (B27)', () => {
     expect(smaj * 1e6 + smin * 1e3 + spatch).toBeGreaterThanOrEqual(11_006);
   });
 });
+
+// Contract B27 v16 (shared-spec ADR 0011): one email lower-case rule (İ → i̇, Σ → σ first) lives in the native cores
+// from Android v0.10.7 / StraitSDK 0.11.7.
+describe('setUserId email lower-case v16 (B27)', () => {
+  it('pins cores with the v16 rule', () => {
+    const [maj, min, patch] = /straitSdkVersion = 'v(\d+)\.(\d+)\.(\d+)'/.exec(read('android/build.gradle'))!.slice(1).map(Number);
+    expect(maj * 1e6 + min * 1e3 + patch).toBeGreaterThanOrEqual(10_007);
+    const [smaj, smin, spatch] = /strait-sdk-swift\.git", from: "(\d+)\.(\d+)\.(\d+)"/.exec(read('Package.swift'))!.slice(1).map(Number);
+    expect(smaj * 1e6 + smin * 1e3 + spatch).toBeGreaterThanOrEqual(11_007);
+  });
+});
