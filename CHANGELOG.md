@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- "Came back" notes (contract B28, shared-spec ADR 0012) arrive with the next native pins (the Android and iOS SDK
+  releases after 0.10.7 / 0.11.7, merged, not released): at most three notes per install (day 1, 7, 30) with the
+  install's tap id, nothing while switched off. No plugin code change. **Not released yet:** waits for the privacy
+  wording OK; release = re-pin the two native SDKs.
+
 ## 0.4.7 (10 Nov 2026)
 
 - Re-pins Android `strait-sdk-android` v0.10.7 and iOS `StraitSDK` 0.11.7: `setUserId` lower-cases an email the same

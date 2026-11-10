@@ -118,7 +118,7 @@ Debug, release and Play App Signing keys each have their own fingerprint."
 
 ## User consent / opt-out
 
-If your app asks for consent first (for example under India's DPDP Act or a GDPR consent flow in the EU), call `await strait.setEnabled(false)` until the person agrees: Strait then sends no open reports or events, does no install matching, and deletes reports waiting on the device. The choice is kept across launches on the phone; `setEnabled(true)` turns it back on (default: on) and `isEnabled()` reads it. It works before `start()`, so a first-launch consent screen can call it first; `setEnabled(true)` then runs the deferred check.
+If your app asks for consent first (for example under India's DPDP Act or a GDPR consent flow in the EU), call `await strait.setEnabled(false)` until the person agrees: Strait then sends no open reports or events, does no install matching, and deletes reports waiting on the device (and the install tap behind the day 1 / 7 / 30 "came back" notes, which then never resume). The choice is kept across launches on the phone; `setEnabled(true)` turns it back on (default: on) and `isEnabled()` reads it. It works before `start()`, so a first-launch consent screen can call it first; `setEnabled(true)` then runs the deferred check.
 Links that carry their own destination still open your screens. A Strait short link is looked up through the engine's `/v1/lookup`, which records nothing (no tap, no open, no tap id), so it still opens the right screen; only if that lookup fails (offline) does it come back `matched: false, reason: 'disabled'`. Whether you need consent, and for what, is a question for your own legal advice.
 
 ## Platform features
@@ -178,6 +178,11 @@ gets its deferred link and is counted. An app update is never a new install. No 
 **Versions on each open (contract B25):** every open and install the plugin records carries your app's
 version (Android `versionName`, iOS `CFBundleShortVersionString`) and `capacitor/<plugin version>` as the SDK
 version, so Dashboard and the taps export show which build sent it. No app code needed.
+
+**"Came back" notes (contract B28, from the native SDK releases after Android 0.10.7 / StraitSDK 0.11.7; not released yet):**
+so the dashboard can show whether the people a campaign brought came back (D1 / D7 / D30), the native SDKs send at
+most three tiny notes per install, ever, on day 1, 7 and 30 after the install, carrying only the install's tap id (no
+device id, no user id, no URL). Nothing while switched off; `setEnabled(false)` deletes the stored install tap. No app code needed.
 
 What gets recorded, the privacy details and the match methods are the same as the native SDKs:
 see [Android](https://github.com/strait-link/strait-sdk-android#what-strait-records-automatically-no-extra-code)
