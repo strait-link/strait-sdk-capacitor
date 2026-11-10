@@ -145,7 +145,7 @@ Links that carry their own destination still open your screens. A Strait short l
 | `onLinkStart(cb)` | A link just arrived and is being resolved: show a loading state. |
 | `checkDeferred()` | Asks for the deferred link again (settings or debug screens). Doesn't add an install. |
 | `trackEvent(name, { value, currency, linkId, clickId, eventId })` | Conversion or revenue event, placed on the tap of the last attributed open (7 days). `eventId` = your order id, stored once (left out, the SDK makes one). Resolves `true` when accepted; an event that can't be sent (offline, server busy) is kept and sent later with the open reports. Revenue you must trust: send it from your server with the secret key (the publishable key is public). |
-| `setUserId(id \| null)` | Your own user id, after your sign-in: later `trackEvent` calls carry it to your `app.event` webhook (`userId`, `userIdHashed`) so you can join events to your users (contract B27). Emails and phone numbers are hashed (SHA-256) on the phone by the native SDK and never leave it raw: to join, hash your own value the same way (lower-cased email, or the phone's digits only). Memory only: call it again when the app starts signed in, `setUserId(null)` on sign-out. Ignored while switched off (`setEnabled(false)` clears it). Works before `start()`. |
+| `setUserId(id \| null)` | Your own user id, after your sign-in: later `trackEvent` calls carry it to your `app.event` webhook (`userId`, `userIdHashed`) so you can join events to your users (contract B27). Emails and phone numbers are hashed (SHA-256) on the phone by the native SDK and never leave it raw: to join, hash your own value the same way (the lower-cased email; for a phone, `+` and its digits when written with `+` or `00`, e.g. `+919876543210` as stored in E.164, else its digits; shared-spec ADR 0010). Memory only: call it again when the app starts signed in, `setUserId(null)` on sign-out. Ignored while switched off (`setEnabled(false)` clears it). Works before `start()`. |
 | `pendingOpenReports()` / `flushOpenReports()` | Open reports saved while offline (sent again on start and resume). After a 429/5xx the queue waits (15 s up to 1 h, at least the server's `Retry-After`) before sending again. |
 | `deviceClass()` | `phone` or `tablet` (iPad / 600 dp and up), as sent with open reports. |
 | `openStoreSheet(url, options?)` | The app store inside your app for one of your links (another app to install), deep link kept through the install. Options: `androidPackage`, `listing`, `inline`, `appStoreId`, `providerToken`, `customProductPageId`, `style`. Resolves `{ opened, method, clickId, linkId, referrer, reason }`. |
@@ -163,11 +163,11 @@ The plugin is a thin layer. All link logic (resolving short links, the once-per-
 check, open reports and their retry queue, app-state labels) runs in the native SDKs, which share
 golden test vectors with the Strait engine:
 
-- **Android:** `strait-sdk-android` **v0.10.5** from JitPack (the version is pinned in `android/build.gradle`). The plugin adds JitPack to your Gradle
+- **Android:** `strait-sdk-android` **v0.10.6** from JitPack (the version is pinned in `android/build.gradle`). The plugin adds JitPack to your Gradle
   repositories, limited to the `com.github.strait-link` group, so nothing else is ever fetched from
   it. It reads the Play Install Referrer (`com.android.installreferrer:installreferrer:2.2`), the launch
   intent and `onNewIntent`, and keeps state in SharedPreferences (`strait`).
-- **iOS:** `StraitSDK` **0.11.5+** through Swift Package Manager (pinned in `Package.swift`). Links come from Capacitor's
+- **iOS:** `StraitSDK` **0.11.6+** through Swift Package Manager (pinned in `Package.swift`). Links come from Capacitor's
   `capacitorOpenURL` / `capacitorOpenUniversalLink` notifications; state lives in `UserDefaults`.
 
 **Reinstalls (contract B6a):** Android Auto Backup and restored iPhones bring the "deferred check

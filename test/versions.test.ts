@@ -50,3 +50,14 @@ describe('setUserId (B27)', () => {
     expect(swift).toMatch(/if let id = pendingUserId \{ l\.setUserId\(id\) \}/);
   });
 });
+
+// Contract B27 v15 (shared-spec ADR 0010): the phone rule that hashes `(+91) …`, no-break spaces, Unicode dashes,
+// `tel:`, full-width / Indian digits lives in the native cores from Android v0.10.6 / StraitSDK 0.11.6.
+describe('setUserId phone rule v15 (B27)', () => {
+  it('pins cores with the v15 rule', () => {
+    const [maj, min, patch] = /straitSdkVersion = 'v(\d+)\.(\d+)\.(\d+)'/.exec(read('android/build.gradle'))!.slice(1).map(Number);
+    expect(maj * 1e6 + min * 1e3 + patch).toBeGreaterThanOrEqual(10_006);
+    const [smaj, smin, spatch] = /strait-sdk-swift\.git", from: "(\d+)\.(\d+)\.(\d+)"/.exec(read('Package.swift'))!.slice(1).map(Number);
+    expect(smaj * 1e6 + smin * 1e3 + spatch).toBeGreaterThanOrEqual(11_006);
+  });
+});
